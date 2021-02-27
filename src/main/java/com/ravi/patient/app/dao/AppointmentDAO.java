@@ -23,22 +23,27 @@ import com.ravi.patient.app.model.Physician;
  */
 public class AppointmentDAO {
 
-	static Logger logger = Logger.getLogger(AppointmentDAO.class);
+	private static Logger logger = Logger.getLogger(AppointmentDAO.class);
 
 	PreparedStatement prepStmt = null;
+	Connection databaseConnection = null;
 
-	Connection con = null;
+	public AppointmentDAO() {
+		try {
+			databaseConnection = DBconfiguration.getInstance().getConnection();
+		} catch (SQLException e) {
+			logger.error(e.getMessage());
+		}
+	}
 
 	private static final String APPOINTMENT_PREFIX = "Appointment_";
 
 	public List<Physician> getAllPhysicians() {
 		prepStmt = null;
-		DBconfiguration DBconfiguration = new DBconfiguration();
-		con = DBconfiguration.getConnection();
 		List<Physician> physicianList = new ArrayList<Physician>();
 
 		try {
-			prepStmt = con.prepareStatement("SELECT * from PHYSICIAN");
+			prepStmt = databaseConnection.prepareStatement("SELECT * from PHYSICIAN");
 			ResultSet rs = prepStmt.executeQuery();
 			
 			while (rs.next()) {
@@ -54,13 +59,12 @@ public class AppointmentDAO {
 
 	public boolean checkIfAppointmentSlotAvailable(Physician physician, Optional<Patient> patientObj,
 			Date appointmentDate, String appointmentSlot) throws ParseException {
-		DBconfiguration DBconfiguration = new DBconfiguration();
-		con = DBconfiguration.getConnection();
+	
 		prepStmt = null;
 
 		try {
 
-			prepStmt = con.prepareStatement(
+			prepStmt = databaseConnection.prepareStatement(
 					"SELECT * from APPOINTMENTSLOTS WHERE DRNAME=? AND APPOINTMENTDATE=? AND APPOINTMENTSLOT=?");
 			prepStmt.setString(1, physician.getName());
 			prepStmt.setTimestamp(2, new java.sql.Timestamp(appointmentDate.getTime()));
@@ -81,13 +85,10 @@ public class AppointmentDAO {
 
 	public Optional<Patient> searchPatientById(int id) {
 		prepStmt = null;
-		DBconfiguration DBconfiguration = new DBconfiguration();
-		con = DBconfiguration.getConnection();
-
 		Optional<Patient> opt = Optional.ofNullable(null);
 
 		try {
-			prepStmt = con.prepareStatement("SELECT * from PATIENT WHERE ID=?");
+			prepStmt = databaseConnection.prepareStatement("SELECT * from PATIENT WHERE ID=?");
 			prepStmt.setInt(1, id);
 			ResultSet rs = prepStmt.executeQuery();
 
@@ -108,15 +109,13 @@ public class AppointmentDAO {
 	public String bookAppointmentForPatient(Physician physician, Optional<Patient> patientObj,
 			Date appointmentDateConverted, String appointmentSlot) {
 
-		DBconfiguration DBconfiguration = new DBconfiguration();
-		con = DBconfiguration.getConnection();
 		int appointmentId = (getMaxIdForAPPOINTMENTSLOTSTable() + 1);
 		prepStmt = null;
 
 		int status = 0;
 
 		try {
-			prepStmt = con.prepareStatement(
+			prepStmt = databaseConnection.prepareStatement(
 					"INSERT INTO APPOINTMENTSLOTS(ID,APPOINTMENTID,PATIENTID,DRID,DRNAME,APPOINTMENTDATE,APPOINTMENTSLOT)"
 							+ " VALUES(?,?,?,?,?,?,?);");
 			prepStmt.setInt(1, appointmentId);
@@ -147,11 +146,8 @@ public class AppointmentDAO {
 
 	public int getMaxIdForAPPOINTMENTSLOTSTable() {
 
-		DBconfiguration DBconfiguration = new DBconfiguration();
-		con = DBconfiguration.getConnection();
-
 		try {
-			prepStmt = con.prepareStatement("SELECT MAX(ID) from APPOINTMENTSLOTS");
+			prepStmt = databaseConnection.prepareStatement("SELECT MAX(ID) from APPOINTMENTSLOTS");
 
 			ResultSet rs = prepStmt.executeQuery();
 
@@ -169,11 +165,9 @@ public class AppointmentDAO {
 	}
 
 	public boolean checkAppointmentExistsForPatientId(int patientId) {
-		DBconfiguration DBconfiguration = new DBconfiguration();
-		con = DBconfiguration.getConnection();
-
+		
 		try {
-			prepStmt = con.prepareStatement("SELECT ID from APPOINTMENTSLOTS WHERE PATIENTID=?");
+			prepStmt = databaseConnection.prepareStatement("SELECT ID from APPOINTMENTSLOTS WHERE PATIENTID=?");
 
 			prepStmt.setInt(1, patientId);
 			ResultSet rs = prepStmt.executeQuery();
@@ -193,11 +187,9 @@ public class AppointmentDAO {
 
 	public boolean cancelAppointmentForPatientId(int patientId) {
 
-		DBconfiguration DBconfiguration = new DBconfiguration();
-		con = DBconfiguration.getConnection();
-
+		
 		try {
-			prepStmt = con.prepareStatement("DELETE FROM APPOINTMENTSLOTS WHERE PATIENTID=? ");
+			prepStmt = databaseConnection.prepareStatement("DELETE FROM APPOINTMENTSLOTS WHERE PATIENTID=? ");
 
 			prepStmt.setInt(1, patientId);
 
@@ -220,14 +212,12 @@ public class AppointmentDAO {
 	public String rescheduleAppointmentForPatientId(Physician physician, Optional<Patient> patientObj,
 			Date appointmentDateConverted, String appointmentSlot) {
 
-		DBconfiguration DBconfiguration = new DBconfiguration();
-		con = DBconfiguration.getConnection();
 		prepStmt = null;
 
 		int status = 0;
 
 		try {
-			prepStmt = con.prepareStatement(
+			prepStmt = databaseConnection.prepareStatement(
 					"UPDATE APPOINTMENTSLOTS SET DRID=?,DRNAME=?,APPOINTMENTDATE=?,APPOINTMENTSLOT=? "
 							+ " WHERE PATIENTID=?;");
 
@@ -257,11 +247,8 @@ public class AppointmentDAO {
 
 	public String getAppointmentIdByPatientId(int patientId) {
 
-		DBconfiguration DBconfiguration = new DBconfiguration();
-		con = DBconfiguration.getConnection();
-
 		try {
-			prepStmt = con.prepareStatement("SELECT APPOINTMENTID from APPOINTMENTSLOTS WHERE PATIENTID=?");
+			prepStmt = databaseConnection.prepareStatement("SELECT APPOINTMENTID from APPOINTMENTSLOTS WHERE PATIENTID=?");
 
 			prepStmt.setInt(1, patientId);
 			ResultSet rs = prepStmt.executeQuery();
@@ -282,11 +269,9 @@ public class AppointmentDAO {
 
 	public Optional<Appointment> getAppointmentByPatientId(int patientId) {
 
-		DBconfiguration DBconfiguration = new DBconfiguration();
-		con = DBconfiguration.getConnection();
 		Optional<Appointment> opt = Optional.ofNullable(null);
 		try {
-			prepStmt = con.prepareStatement("SELECT * from APPOINTMENTSLOTS WHERE PATIENTID=?");
+			prepStmt = databaseConnection.prepareStatement("SELECT * from APPOINTMENTSLOTS WHERE PATIENTID=?");
 
 			prepStmt.setInt(1, patientId);
 			ResultSet rs = prepStmt.executeQuery();

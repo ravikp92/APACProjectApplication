@@ -15,40 +15,43 @@ import com.ravi.patient.app.config.DBconfiguration;
 import com.ravi.patient.app.model.Patient;
 import com.ravi.patient.app.model.PatientMedicalHistory;
 
-
 /**
  * @author RaviP
  *
  */
 public class PatientDAO {
-	
-	static Logger logger = Logger.getLogger(PatientDAO.class);
+
+	private static Logger logger = Logger.getLogger(PatientDAO.class);
 
 	PreparedStatement prepStmt = null;
-	Connection con = null;
-	
+	Connection databaseConnection = null;
 
-	public Optional<Patient> searchPatientById(int id) {
-		DBconfiguration DBconfiguration = new DBconfiguration();
-		con = DBconfiguration.getConnection();
+	public PatientDAO() {
+		try {
+			databaseConnection = DBconfiguration.getInstance().getConnection();
+		} catch (SQLException e) {
+			logger.error(e.getMessage());
+		}
+	}
+
+	public Optional<Patient> searchPatientById(int id){
 
 		Optional<Patient> opt = Optional.ofNullable(null);
 
 		try {
-			prepStmt = con.prepareStatement("SELECT * from PATIENT WHERE ID=?");
+			prepStmt = databaseConnection.prepareStatement("SELECT * from PATIENT WHERE ID=?");
 			prepStmt.setInt(1, id);
 			ResultSet rs = prepStmt.executeQuery();
 
 			while (rs.next()) {
 
-				opt = Optional.ofNullable(
-						new Patient(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getString(4), rs.getString(5), rs.getString(6),
-								rs.getString(7), rs.getString(8), rs.getString(9), rs.getDate(10), rs.getString(11)));
+				opt = Optional.ofNullable(new Patient(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getString(4),
+						rs.getString(5), rs.getString(6), rs.getString(7), rs.getString(8), rs.getString(9),
+						rs.getDate(10), rs.getString(11)));
 
 			}
 
 		} catch (SQLException e) {
-
 			logger.error(e.getMessage());
 		}
 		return opt;
@@ -56,13 +59,10 @@ public class PatientDAO {
 	}
 
 	public Optional<PatientMedicalHistory> searchPatientMedicalHistoryByPatientId(int id) {
-		DBconfiguration DBconfiguration = new DBconfiguration();
-		con = DBconfiguration.getConnection();
-
 		Optional<PatientMedicalHistory> opt = Optional.ofNullable(null);
 
 		try {
-			prepStmt = con.prepareStatement("SELECT * from PatientMedicalHistory WHERE PATIENTID=?");
+			prepStmt = databaseConnection.prepareStatement("SELECT * from PatientMedicalHistory WHERE PATIENTID=?");
 			prepStmt.setInt(1, id);
 			ResultSet rs = prepStmt.executeQuery();
 
@@ -72,9 +72,7 @@ public class PatientDAO {
 						rs.getDouble(4), rs.getDouble(5), rs.getDouble(6), rs.getString(7)));
 
 			}
-
 		} catch (SQLException e) {
-
 			logger.error(e.getMessage());
 		}
 		return opt;
@@ -82,18 +80,15 @@ public class PatientDAO {
 	}
 
 	public int getMaxIdForPatientTable() {
-		DBconfiguration DBconfiguration = new DBconfiguration();
-		con = DBconfiguration.getConnection();
 
 		try {
-			prepStmt = con.prepareStatement("SELECT MAX(ID) from PATIENT");
+			prepStmt = databaseConnection.prepareStatement("SELECT MAX(ID) from PATIENT");
 			ResultSet rs = prepStmt.executeQuery();
 			while (rs.next()) {
 				return rs.getInt(1);
 			}
 
 		} catch (SQLException e) {
-
 			logger.error(e.getMessage());
 		}
 		return 0;
@@ -101,18 +96,14 @@ public class PatientDAO {
 	}
 
 	public int getMaxIdForPatientMedicalHistoryTable() {
-		DBconfiguration DBconfiguration = new DBconfiguration();
-		con = DBconfiguration.getConnection();
-
 		try {
-			prepStmt = con.prepareStatement("SELECT MAX(ID) from PatientMedicalHistory");
+			prepStmt = databaseConnection.prepareStatement("SELECT MAX(ID) from PatientMedicalHistory");
 			ResultSet rs = prepStmt.executeQuery();
 			while (rs.next()) {
 				return rs.getInt(1);
 			}
 
 		} catch (SQLException e) {
-
 			logger.error(e.getMessage());
 		}
 		return 0;
@@ -121,17 +112,14 @@ public class PatientDAO {
 
 	public int deletePatientById(int id) {
 
-		DBconfiguration DBconfiguration = new DBconfiguration();
-		con = DBconfiguration.getConnection();
 		int result = 0;
 
 		try {
-			prepStmt = con.prepareStatement("DELETE from PATIENT WHERE ID=?");
+			prepStmt = databaseConnection.prepareStatement("DELETE from PATIENT WHERE ID=?");
 			prepStmt.setInt(1, id);
 			result = prepStmt.executeUpdate();
 
 		} catch (SQLException e) {
-
 			logger.error(e.getMessage());
 		}
 		return result;
@@ -140,19 +128,15 @@ public class PatientDAO {
 
 	public int deletePatientMedicalHistoryByPatientId(int id) {
 
-		DBconfiguration DBconfiguration = new DBconfiguration();
-		con = DBconfiguration.getConnection();
 		int result = 0;
 
 		try {
 
-			prepStmt = con.prepareStatement("DELETE from PatientMedicalHistory WHERE PATIENTID=?");
+			prepStmt = databaseConnection.prepareStatement("DELETE from PatientMedicalHistory WHERE PATIENTID=?");
 			prepStmt.setInt(1, id);
 			result = prepStmt.executeUpdate();
 
-
 		} catch (SQLException e) {
-
 			logger.error(e.getMessage());
 		}
 		return result;
@@ -160,14 +144,12 @@ public class PatientDAO {
 	}
 
 	public String addPatient(Patient patient, PatientMedicalHistory PatientMedicalHistory) {
-		DBconfiguration DBconfiguration = new DBconfiguration();
-		con = DBconfiguration.getConnection();
 		patient.setId(getMaxIdForPatientTable() + 1);
 		PatientMedicalHistory.setId(getMaxIdForPatientMedicalHistoryTable() + 1);
 		int status = 0;
 
 		try {
-			prepStmt = con.prepareStatement(
+			prepStmt = databaseConnection.prepareStatement(
 					"INSERT INTO PATIENT(ID, FIRSTNAME,LASTNAME, ADDRESS,EMAIL,PHONENUMBER,CITY,STATE,GENDER,DOB,SSN)"
 							+ "VALUES (?, ?, ?,?,?,?,?,?,?,?,?)");
 			prepStmt.setInt(1, patient.getId());
@@ -186,7 +168,7 @@ public class PatientDAO {
 
 			if (status > 0) {
 
-				prepStmt = con.prepareStatement(
+				prepStmt = databaseConnection.prepareStatement(
 						"INSERT INTO PatientMedicalHistory(ID,PATIENTID,HEIGHT, WEIGHT,BLOODPRESSURE,PULSERATE,AFFECTEDORGAN)"
 								+ "VALUES (?, ?, ?,?,?,?,?)");
 				prepStmt.setInt(1, PatientMedicalHistory.getId());
@@ -200,17 +182,16 @@ public class PatientDAO {
 				status = prepStmt.executeUpdate();
 
 				if (status > 0) {
-					return "Record is inserted successfully !!! \n" + patient + " \n " + PatientMedicalHistory;
+					return "Patient and Medical History Record is added successfully!!";
 				} else {
-					return "There is an error in insertion " + PatientMedicalHistory;
+					return "Record addition failed!!";
 				}
 
 			} else {
-				return "There is an error in insertion " + patient;
+				return "Patient Record addition failed!!";
 			}
 
 		} catch (SQLException e) {
-
 			logger.error(e.getMessage());
 		}
 		return null;
@@ -218,11 +199,8 @@ public class PatientDAO {
 	}
 
 	public int updatePatient(Patient patient) {
-		DBconfiguration DBconfiguration = new DBconfiguration();
-		con = DBconfiguration.getConnection();
-
 		try {
-			prepStmt = con.prepareStatement(
+			prepStmt = databaseConnection.prepareStatement(
 					"UPDATE PATIENT SET FIRSTNAME=?,LASTNAME=?,ADDRESS=?,EMAIL=?,PHONENUMBER=?,CITY=?,STATE=?,GENDER=?,DOB=?,SSN=? "
 							+ " WHERE ID=?");
 
@@ -240,10 +218,7 @@ public class PatientDAO {
 
 			return prepStmt.executeUpdate();
 
-			
-
 		} catch (SQLException e) {
-
 			logger.error(e.getMessage());
 		}
 		return 0;
@@ -251,11 +226,8 @@ public class PatientDAO {
 	}
 
 	public int updatePatientMedicalHistory(PatientMedicalHistory PatientMedicalHistory) {
-		DBconfiguration DBconfiguration = new DBconfiguration();
-		con = DBconfiguration.getConnection();
-
 		try {
-			prepStmt = con.prepareStatement(
+			prepStmt = databaseConnection.prepareStatement(
 					"UPDATE PatientMedicalHistory SET HEIGHT=?,WEIGHT=?,BLOODPRESSURE=?,PULSERATE=?,AFFECTEDORGAN=?"
 							+ " WHERE PATIENTID=?");
 
@@ -268,10 +240,7 @@ public class PatientDAO {
 
 			return prepStmt.executeUpdate();
 
-			
-
 		} catch (SQLException e) {
-
 			logger.error(e.getMessage());
 		}
 		return 0;

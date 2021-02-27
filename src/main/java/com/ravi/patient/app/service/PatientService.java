@@ -18,6 +18,20 @@ public class PatientService {
 
 	PatientDAO patientDAO=new PatientDAO();
 
+	public String addPatient(Patient patient,PatientMedicalHistory patientMedicalHistory) {
+		return patientDAO.addPatient(patient,patientMedicalHistory);
+	}
+	
+	public int updatePatient(Patient patient) {
+		return patientDAO.updatePatient(patient);
+				
+	}
+	
+	public int updatePatientMedicalHistory(PatientMedicalHistory patientMedicalHistory) {
+		return patientDAO.updatePatientMedicalHistory(patientMedicalHistory);
+				
+	}
+	
 	public Optional<Patient> searchPatientById(int id) {
 		return patientDAO.searchPatientById(id);
 	}
@@ -33,25 +47,9 @@ public class PatientService {
 			return patientHistoryResult;
 		}
 		else {
-			
 			return 0;
 		}
 	}
-	
-	public String addPatient(Patient patient,PatientMedicalHistory patientMedicalHistory) {
-		return patientDAO.addPatient(patient,patientMedicalHistory);
-	}
-	
-	public int updatePatient(Patient patient) {
-		return patientDAO.updatePatient(patient);
-				
-	}
-	
-	public int updatePatientHistory(PatientMedicalHistory patientMedicalHistory) {
-		return patientDAO.updatePatientMedicalHistory(patientMedicalHistory);
-				
-	}
-
 	
 
 }

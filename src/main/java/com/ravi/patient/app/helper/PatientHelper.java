@@ -1,70 +1,143 @@
 package com.ravi.patient.app.helper;
 
-import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
+import java.util.Optional;
 import java.util.Scanner;
-import java.util.regex.Pattern;
 
+import org.apache.log4j.Logger;
+
+import com.ravi.patient.app.config.DBconfiguration;
 import com.ravi.patient.app.enums.AffectedOrgan;
 import com.ravi.patient.app.enums.Gender;
 import com.ravi.patient.app.model.Patient;
 import com.ravi.patient.app.model.PatientMedicalHistory;
 import com.ravi.patient.app.service.PatientService;
+import com.ravi.patient.app.validation.Validations;
 
 public class PatientHelper {
+	private static Logger logger = Logger.getLogger(DBconfiguration.class);
 	PatientService patientService = new PatientService();
 
 	public void addPatient(Scanner scanner) throws ParseException {
 		
-		Scanner sc = new Scanner(System.in);
-
 		Patient patient = new Patient();
+		PatientMedicalHistory patientMedicalHistory = new PatientMedicalHistory();
+		readPatientData(scanner, patient,patientMedicalHistory);
+		String result = patientService.addPatient(patient, patientMedicalHistory);
+		System.out.println(result);
+	}
+
+	public void updatePatient(Scanner scanner) throws ParseException {
+		System.out.println("Updating Patient Detials...\n");
+		System.out.println("Please Enter Patient Id :\n");
+		String patientId = scanner.next();
+		
+		Patient updatedPatient = new Patient();
+		PatientMedicalHistory updatedPatientMedicalHistory = new PatientMedicalHistory();
+		readPatientData(scanner, updatedPatient,updatedPatientMedicalHistory);
+		
+		updatedPatient.setId(Integer.parseInt(patientId));
+		updatedPatientMedicalHistory.setPatientId(Integer.parseInt(patientId));
+		
+		
+		int updatePatientResult = patientService.updatePatient(updatedPatient);
+		int updatePatienHistoryResult = patientService.updatePatientMedicalHistory(updatedPatientMedicalHistory);
+		
+		if (updatePatientResult > 0 && updatePatienHistoryResult>0) {
+			System.out.println("Record is updated successfully !!!");
+			System.out.println(updatedPatient);
+			System.out.println(updatedPatientMedicalHistory);
+			logger.debug("Patient Details Updated!!");
+		} else {
+			System.err.println("Record updation failed !!!");
+			logger.error("Patient Details Failed Updation!!");
+		}
+		
+	}
+
+	public void deletePatient(Scanner scanner) {
+		System.out.println("Deleting Patient Detials...\n");
+		System.out.println("Please Enter Patient Id :\n");
+		String patientId = scanner.next();
+		int deleted = patientService.deletePatient(Integer.parseInt(patientId));
+		if (deleted > 0) {
+			System.out.println("Record has been deleted Successfully for patient Id :"+patientId);
+			logger.info("Record has been deleted Successfully for patient Id :"+patientId);
+		} else {
+			System.err.println("Failed!! Unable to delete record for patient Id :"+patientId);
+			logger.error("Failed!! Unable to delete record for patient Id :"+patientId);
+		}
+		
+	}
+
+	public void searchPatient(Scanner scanner) {
+		System.out.println("Searching  Patient Detials...\n");
+		System.out.println("Please Enter Patient Id :\n");
+		String patientId = scanner.next();
+		Optional<Patient> patientObj = patientService.searchPatientById(Integer.parseInt(patientId));
+		
+		if(patientObj!=null) {
+			System.out.println("Search Results..\n");
+			System.out.println("Patient Details : "+patientObj.orElse(new Patient()));
+			Optional<PatientMedicalHistory> patientHistoryObj = patientService.searchPatientHistoryByPatientId(Integer.parseInt(patientId));
+			System.out.println("Patient Medical History Details : "+patientHistoryObj.orElse(new PatientMedicalHistory()));
+			logger.info("Patient Details : "+patientObj.orElse(new Patient()));
+			logger.info("Patient Medical History Details : "+patientHistoryObj.orElse(new PatientMedicalHistory()));
+		}else {
+			System.err.println("Invalid Search Results..\n");
+			logger.error("Invalid Search Results..\n");
+		}
+	}
+	
+
+
+	private void readPatientData(Scanner scanner, Patient patient, PatientMedicalHistory patientMedicalHistory) throws ParseException {
+		
 		System.out.print("Enter Patient First Name: ");
-		String firstName = sc.nextLine();
-		firstName = validateName(sc, firstName);
+		String firstName = scanner.nextLine();
+		firstName = Validations.validateName(scanner, firstName);
+		
 		System.out.print("\nEnter Patient Last Name: ");
-		String lastName = sc.nextLine();
-		lastName = validateName(sc, lastName);
+		String lastName = scanner.nextLine();
+		lastName = Validations.validateName(scanner, lastName);
 		System.out.print("\nEnter Email Id: ");
 
-		String email = sc.nextLine();
-		while (!isValidEmail(email)) {
+		String email = scanner.nextLine();
+		while (!Validations.isValidEmail(email)) {
 			System.out.println("Please Enter Valid Email ID!! ");
 			System.out.print("Please try again : ");
-			email = sc.nextLine();
+			email = scanner.nextLine();
 		}
 
 		System.out.print("\nEnter Phone Number: ");
 
-		String phoneNumber = sc.nextLine();
-		while (!isValidPhoneNumber(phoneNumber)) {
+		String phoneNumber = scanner.nextLine();
+		while (!Validations.isValidPhoneNumber(phoneNumber)) {
 			System.out.println("Please Enter Valid Phone Number!! ");
 			System.out.print("Please try again : ");
-			phoneNumber = sc.nextLine();
+			phoneNumber = scanner.nextLine();
 		}
 
 		System.out.print("Enter City: ");
-		String city = sc.nextLine();
-		city = validateCityState(sc, city, true);
+		String city = scanner.nextLine();
+		city = Validations.validateCityState(scanner, city, true);
 
 		System.out.print("Enter State: ");
-		String state = sc.nextLine();
-		state = validateCityState(sc, state, false);
+		String state = scanner.nextLine();
+		state = Validations.validateCityState(scanner, state, false);
 
 		System.out.print("Enter Date of birth(MM/DD/YYYY): ");
 
-		String dateOfBirth = sc.nextLine();
-		while (!validateDob(dateOfBirth)) {
+		String dateOfBirth = scanner.nextLine();
+		while (!Validations.validateDob(dateOfBirth)) {
 			System.out.println("Please Enter Valid DOB (MM/DD/YYYY)!! ");
 			System.out.print("Please try again : ");
-			dateOfBirth = sc.nextLine();
+			dateOfBirth = scanner.nextLine();
 		}
 
 		System.out.print("Enter Gender (M/F): ");
-		String gender = sc.nextLine();
+		String gender = scanner.nextLine();
 		boolean genderflag = false;
 		while (!genderflag) {
 			if (Gender.MALE.getGender().equalsIgnoreCase(gender)) {
@@ -76,46 +149,46 @@ public class PatientHelper {
 			} else {
 				System.out.println("Please Enter Valid Gender!! ");
 				System.out.print("Please try again : ");
-				gender = sc.nextLine();
+				gender = scanner.nextLine();
 				genderflag = false;
 			}
 		}
 
 		System.out.print("Enter Height: ");
-		String height = sc.nextLine();
-		while (!validateNum(height)) {
+		String height = scanner.nextLine();
+		while (!Validations.validateNum(height)) {
 			System.out.println("Please Enter Valid Height!! ");
 			System.out.print("Please try again : ");
-			height = sc.nextLine();
+			height = scanner.nextLine();
 		}
 
 		System.out.print("Enter Weight: ");
-		String weight = sc.nextLine();
-		while (!validateNum(weight)) {
+		String weight = scanner.nextLine();
+		while (!Validations.validateNum(weight)) {
 			System.out.println("Please Enter Valid Weight!! ");
 			System.out.print("Please try again : ");
-			weight = sc.nextLine();
+			weight = scanner.nextLine();
 		}
 
 		System.out.print("Enter Pulse Rate: ");
-		String pr = sc.nextLine();
-		while (!validateNum(pr)) {
+		String pr = scanner.nextLine();
+		while (!Validations.validateNum(pr)) {
 			System.out.println("Please Enter Valid Pulse rate!! ");
 			System.out.print("Please try again : ");
-			pr = sc.nextLine();
+			pr = scanner.nextLine();
 		}
 
 		System.out.print("Enter Blood Pressure: ");
-		String bloodPressure = sc.nextLine();
-		while (!validateNum(bloodPressure)) {
+		String bloodPressure = scanner.nextLine();
+		while (!Validations.validateNum(bloodPressure)) {
 			System.out.println("Please Enter Valid Blood Pressure!! ");
 			System.out.print("Please try again : ");
-			bloodPressure = sc.nextLine();
+			bloodPressure = scanner.nextLine();
 		}
 
 		System.out
 				.print("Enter affected organ number :" + "LUNGS(1), HEART(2), LEG(3), HANDS(4), KIDNEY(5),OTHERS(6) ");
-		int affectedOrgan = sc.nextInt();
+		int affectedOrgan = scanner.nextInt();
 		String affectedOrganName = "";
 		boolean affectedOrganflag = false;
 		while (!affectedOrganflag) {
@@ -140,7 +213,7 @@ public class PatientHelper {
 			} else {
 				System.out.println("Please Enter Valid Affected Organ Number!! ");
 				System.out.print("Please try again : ");
-				affectedOrgan = sc.nextInt();
+				affectedOrgan = scanner.nextInt();
 				affectedOrganflag = false;
 			}
 		}
@@ -153,88 +226,11 @@ public class PatientHelper {
 		patient.setState(state);
 		patient.setDob(new SimpleDateFormat("dd/MM/yyyy").parse(dateOfBirth));
 		patient.setGender(gender);
-		PatientMedicalHistory pateintMedicalHistory = new PatientMedicalHistory();
-		pateintMedicalHistory.setHeight(Double.parseDouble(height));
-		pateintMedicalHistory.setWeight(Double.parseDouble(weight));
-		pateintMedicalHistory.setPulseRate(Double.parseDouble(pr));
-		pateintMedicalHistory.setBloodPressure(Double.parseDouble(bloodPressure));
-		pateintMedicalHistory.setAffectedOrgan(affectedOrganName);
-
-		
-		
+		patientMedicalHistory.setHeight(Double.parseDouble(height));
+		patientMedicalHistory.setWeight(Double.parseDouble(weight));
+		patientMedicalHistory.setPulseRate(Double.parseDouble(pr));
+		patientMedicalHistory.setBloodPressure(Double.parseDouble(bloodPressure));
+		patientMedicalHistory.setAffectedOrgan(affectedOrganName);
 	}
 
-	private boolean validateNum(String height) {
-		try {
-			Double.parseDouble(height);
-		} catch (NumberFormatException e) {
-			return false;
-		}
-		return true;
-	}
-
-	private String validateName(Scanner sc, String name) {
-		while (name.length() < 5) {
-			System.out.println("Name must be atleast 5 character in length !! ");
-			System.out.print("Please try again : ");
-			name = sc.nextLine();
-		}
-		return name;
-	}
-
-	private String validateCityState(Scanner sc, String attribute, boolean flag) {
-		while (attribute.length() < 3) {
-			if (flag)
-				System.out.println("City must be atleast 3 character in length !! ");
-			else
-				System.out.println("State must be atleast 3 character in length !! ");
-			System.out.print("Please try again : ");
-			attribute = sc.nextLine();
-		}
-		return attribute;
-	}
-
-	public static boolean isValidEmail(String email) {
-		String emailRegex = "^[a-zA-Z0-9_+&*-]+(?:\\." + "[a-zA-Z0-9_+&*-]+)*@" + "(?:[a-zA-Z0-9-]+\\.)+[a-z"
-				+ "A-Z]{2,7}$";
-
-		Pattern pat = Pattern.compile(emailRegex);
-		if (email == null)
-			return false;
-		return pat.matcher(email).matches();
-	}
-
-	public static boolean isValidPhoneNumber(String number) {
-		String phoneNumRegex = "^(\\d{3}[- .]?){2}\\d{4}$";
-		Pattern pat = Pattern.compile(phoneNumRegex);
-		if (number == null)
-			return false;
-		return pat.matcher(number).matches();
-	}
-
-	public static boolean validateDob(String dob) {
-		DateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
-		sdf.setLenient(false);
-		try {
-			sdf.parse(dob);
-		} catch (ParseException e) {
-			return false;
-		}
-		return true;
-	}
-
-	public void updatePatient(Scanner scanner) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	public void deletePatient(Scanner scanner) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	public void searchPatient(Scanner scanner) {
-		// TODO Auto-generated method stub
-		
-	}
 }
