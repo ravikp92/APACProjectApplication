@@ -85,7 +85,7 @@ public class AppointmentDAO {
 
 	public Optional<Patient> searchPatientById(int id) {
 		prepStmt = null;
-		Optional<Patient> opt = Optional.ofNullable(null);
+		Optional<Patient> patientData = Optional.ofNullable(null);
 
 		try {
 			prepStmt = databaseConnection.prepareStatement("SELECT * from PATIENT WHERE ID=?");
@@ -93,7 +93,7 @@ public class AppointmentDAO {
 			ResultSet rs = prepStmt.executeQuery();
 
 			while (rs.next()) {
-				opt = Optional.ofNullable(new Patient(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getString(4),
+				patientData = Optional.ofNullable(new Patient(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getString(4),
 						rs.getString(5), rs.getString(6), rs.getString(7), rs.getString(8), rs.getString(9),
 						rs.getDate(10), rs.getString(11)));
 			}
@@ -102,7 +102,7 @@ public class AppointmentDAO {
 
 			logger.error(e.getMessage());
 		}
-		return opt;
+		return patientData;
 
 	}
 
@@ -130,10 +130,7 @@ public class AppointmentDAO {
 
 			if (status > 0) {
 				return APPOINTMENT_PREFIX + appointmentId;
-			} else {
-				return "";
 			}
-
 		}
 
 		catch (SQLException e) {
@@ -231,10 +228,7 @@ public class AppointmentDAO {
 
 			if (status > 0) {
 				return getAppointmentIdByPatientId(patientObj.get().getId());
-			} else {
-				return "";
 			}
-
 		}
 
 		catch (SQLException e) {
