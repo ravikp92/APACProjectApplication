@@ -15,7 +15,7 @@ public class DBconfiguration {
 
 	private Connection connection;
 	private static final String DRIVER_CLASS_NAME = "com.mysql.cj.jdbc.Driver";
-	private static final String CONNECTION_URL = "jdbc:mysql://127.0.0.1:3306/patientportal?useUnicode=true&characterEncoding=UTF-8&zeroDateTimeBehavior=convertToNull&serverTimezone=GMT";
+	private static final String CONNECTION_URL = "jdbc:mysql://127.0.0.1:3306/patientPortalDatabase?useUnicode=true&characterEncoding=UTF-8&zeroDateTimeBehavior=convertToNull&serverTimezone=GMT";
 	private static final String USERNAME = "root";
 	private static final String PASSWORD = "password_123";
 

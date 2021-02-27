@@ -62,7 +62,7 @@ public class PatientDAO {
 		Optional<PatientMedicalHistory> opt = Optional.ofNullable(null);
 
 		try {
-			prepStmt = databaseConnection.prepareStatement("SELECT * from PatientMedicalHistory WHERE PATIENTID=?");
+			prepStmt = databaseConnection.prepareStatement("SELECT * from PATIENTMEDICALHISTORY WHERE PATIENTID=?");
 			prepStmt.setInt(1, id);
 			ResultSet rs = prepStmt.executeQuery();
 
@@ -97,7 +97,7 @@ public class PatientDAO {
 
 	public int getMaxIdForPatientMedicalHistoryTable() {
 		try {
-			prepStmt = databaseConnection.prepareStatement("SELECT MAX(ID) from PatientMedicalHistory");
+			prepStmt = databaseConnection.prepareStatement("SELECT MAX(ID) from PATIENTMEDICALHISTORY");
 			ResultSet rs = prepStmt.executeQuery();
 			while (rs.next()) {
 				return rs.getInt(1);
@@ -132,7 +132,7 @@ public class PatientDAO {
 
 		try {
 
-			prepStmt = databaseConnection.prepareStatement("DELETE from PatientMedicalHistory WHERE PATIENTID=?");
+			prepStmt = databaseConnection.prepareStatement("DELETE from PATIENTMEDICALHISTORY WHERE PATIENTID=?");
 			prepStmt.setInt(1, id);
 			result = prepStmt.executeUpdate();
 
@@ -169,7 +169,7 @@ public class PatientDAO {
 			if (status > 0) {
 
 				prepStmt = databaseConnection.prepareStatement(
-						"INSERT INTO PatientMedicalHistory(ID,PATIENTID,HEIGHT, WEIGHT,BLOODPRESSURE,PULSERATE,AFFECTEDORGAN)"
+						"INSERT INTO PATIENTMEDICALHISTORY(ID,PATIENTID,HEIGHT, WEIGHT,BLOODPRESSURE,PULSERATE,AFFECTEDORGAN)"
 								+ "VALUES (?, ?, ?,?,?,?,?)");
 				prepStmt.setInt(1, PatientMedicalHistory.getId());
 				prepStmt.setInt(2, patient.getId());
@@ -228,7 +228,7 @@ public class PatientDAO {
 	public int updatePatientMedicalHistory(PatientMedicalHistory PatientMedicalHistory) {
 		try {
 			prepStmt = databaseConnection.prepareStatement(
-					"UPDATE PatientMedicalHistory SET HEIGHT=?,WEIGHT=?,BLOODPRESSURE=?,PULSERATE=?,AFFECTEDORGAN=?"
+					"UPDATE PATIENTMEDICALHISTORY SET HEIGHT=?,WEIGHT=?,BLOODPRESSURE=?,PULSERATE=?,AFFECTEDORGAN=?"
 							+ " WHERE PATIENTID=?");
 
 			prepStmt.setDouble(1, PatientMedicalHistory.getHeight());
