@@ -57,7 +57,7 @@ public class Validations {
 	}
 
 	public static boolean validateDob(String dob) {
-		DateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
+		DateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 		sdf.setLenient(false);
 		try {
 			sdf.parse(dob);

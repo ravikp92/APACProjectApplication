@@ -127,11 +127,11 @@ public class PatientHelper {
 		String state = scanner.nextLine();
 		state = Validations.validateCityState(scanner, state, false);
 
-		System.out.print("Enter Date of birth(MM/DD/YYYY): ");
+		System.out.print("Enter Date of birth(DD/MM/YYYY): ");
 
 		String dateOfBirth = scanner.nextLine();
 		while (!Validations.validateDob(dateOfBirth)) {
-			System.out.println("Please Enter Valid DOB (MM/DD/YYYY)!! ");
+			System.out.println("Please Enter Valid DOB (dd/MM/yyyy)!! ");
 			System.out.print("Please try again : ");
 			dateOfBirth = scanner.nextLine();
 		}
