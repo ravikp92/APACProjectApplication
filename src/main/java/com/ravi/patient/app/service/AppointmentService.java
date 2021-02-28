@@ -28,22 +28,11 @@ public class AppointmentService {
 		return appointmentDAO.getAllPhysicians();
 	}
 
-	public boolean checkAppointmentSlotForPhysician(Physician physician, Optional<Patient> patientObj,
-			Date appointmentDate, String appointmentSlot) throws ParseException {
-		
-		return appointmentDAO.checkIfAppointmentSlotAvailable( physician,  patientObj,
-				 appointmentDate,  appointmentSlot);
-	}
-
 	public String bookAppointmentWithPhysician(Physician physician, Optional<Patient> patientObj,
 			Date appointmentDateConverted, String appointmentSlot) {
 		
 		return appointmentDAO.bookAppointmentForPatient( physician,  patientObj,
 				 appointmentDateConverted,  appointmentSlot);
-	}
-	
-	public boolean checkAppointmentByPatientId(int patientId){
-		return appointmentDAO.checkAppointmentExistsForPatientId( patientId);
 	}
 	
 	public boolean cancelAppointmentForPatientId(int patientId){
@@ -54,6 +43,18 @@ public class AppointmentService {
 			Date appointmentDateConverted, String appointmentSlot) {
 		return appointmentDAO.rescheduleAppointmentForPatientId(physician, patientObj,
 				 appointmentDateConverted,  appointmentSlot); 
+	}
+	
+	
+	public boolean checkAppointmentSlotForPhysician(Physician physician, Optional<Patient> patientObj,
+			Date appointmentDate, String appointmentSlot) throws ParseException {
+		
+		return appointmentDAO.checkIfAppointmentSlotAvailable( physician,  patientObj,
+				 appointmentDate,  appointmentSlot);
+	}
+	
+	public boolean checkAppointmentByPatientId(int patientId){
+		return appointmentDAO.checkAppointmentExistsForPatientId( patientId);
 	}
 	
 	public Optional<Appointment> getAppointmentByPatientId(int patientIdInt) {

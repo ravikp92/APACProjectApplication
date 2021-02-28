@@ -2,6 +2,7 @@ package com.ravi.patient.app.helper;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Scanner;
 
@@ -48,7 +49,7 @@ public class PatientHelper {
 			System.out.println("Record is updated successfully !!!");
 			System.out.println(updatedPatient);
 			System.out.println(updatedPatientMedicalHistory);
-			logger.debug("Patient Details Updated!!");
+			logger.info("Patient Details Updated!!");
 		} else {
 			System.err.println("Record updation failed !!!");
 			logger.error("Patient Details Failed Updation!!");
@@ -63,7 +64,6 @@ public class PatientHelper {
 		int deleted = patientService.deletePatient(Integer.parseInt(patientId));
 		if (deleted > 0) {
 			System.out.println("Record has been deleted Successfully for patient Id :"+patientId);
-			logger.info("Record has been deleted Successfully for patient Id :"+patientId);
 		} else {
 			System.err.println("Failed!! Unable to delete record for patient Id :"+patientId);
 			logger.error("Failed!! Unable to delete record for patient Id :"+patientId);
@@ -77,13 +77,11 @@ public class PatientHelper {
 		String patientId = scanner.next();
 		Optional<Patient> patientObj = patientService.searchPatientById(Integer.parseInt(patientId));
 		
-		if(patientObj!=null) {
+		if(patientObj.isPresent()) {
 			System.out.println("Search Results..\n");
 			System.out.println("Patient Details : "+patientObj.orElse(new Patient()));
 			Optional<PatientMedicalHistory> patientHistoryObj = patientService.searchPatientHistoryByPatientId(Integer.parseInt(patientId));
 			System.out.println("Patient Medical History Details : "+patientHistoryObj.orElse(new PatientMedicalHistory()));
-			logger.info("Patient Details : "+patientObj.orElse(new Patient()));
-			logger.info("Patient Medical History Details : "+patientHistoryObj.orElse(new PatientMedicalHistory()));
 		}else {
 			System.err.println("Invalid Search Results..\n");
 			logger.error("Invalid Search Results..\n");
@@ -94,7 +92,8 @@ public class PatientHelper {
 
 	private void readPatientData(Scanner scanner, Patient patient, PatientMedicalHistory patientMedicalHistory) throws ParseException {
 		
-		System.out.print("Enter Patient First Name: ");
+		System.out.print("\nEnter Patient First Name: ");
+		
 		String firstName = scanner.nextLine();
 		firstName = Validations.validateName(scanner, firstName);
 		

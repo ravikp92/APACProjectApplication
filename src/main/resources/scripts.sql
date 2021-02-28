@@ -49,7 +49,7 @@ PRIMARY KEY (ID) ,
  FOREIGN KEY (DRID) REFERENCES PHYSICIAN(ID));
 
 
-INSERT INTO `patientPortalDatabase`.PHYSICIAN VALUES(1,"Ravi Puri");
+INSERT INTO `patientPortalDatabase`.PHYSICIAN VALUES(1,"Ravi_Puri");
 INSERT INTO `patientPortalDatabase`.PHYSICIAN VALUES(2,"Rahul");
 INSERT INTO `patientPortalDatabase`.PHYSICIAN VALUES(3,"Vijay");
 INSERT INTO `patientPortalDatabase`.PHYSICIAN VALUES(4,"Sanjana");

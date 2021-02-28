@@ -19,6 +19,10 @@ public class Validations {
 
 	public static String validateName(Scanner sc, String name) {
 		while (name.length() < 5) {
+			if(name.length()==0) {
+				name = sc.nextLine();
+				continue;
+			}
 			System.out.println("Name must be atleast 5 character in length !! ");
 			System.out.print("Please try again : ");
 			name = sc.nextLine();
