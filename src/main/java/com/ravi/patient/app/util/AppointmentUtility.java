@@ -17,7 +17,7 @@ import com.ravi.patient.app.model.Physician;
 public class AppointmentUtility implements PatientAppConstant {
 
 	/**
-	 * Generating Appointment Pdf
+	 * Generating Appointment Pdf for book and reschedule 
 	 * 
 	 * @param physician
 	 * @param patientObj
@@ -58,36 +58,21 @@ public class AppointmentUtility implements PatientAppConstant {
 		// Lets write a big header
 		para.setAlignment(Paragraph.ALIGN_CENTER);
 		para.add(new Paragraph("Receipt", catFont));
-
 		addEmptyLine(para, 1);
-
 		para.add(new Paragraph("Appointment Id: " + resultMessage, smallBold));
-
 		addEmptyLine(para, 1);
-
 		para.add(new Paragraph("Patient Id: " + patientObj.get().getId(), smallBold));
-
 		addEmptyLine(para, 1);
-
 		para.add(new Paragraph(
 				"Patient Name: " + patientObj.get().getFirstName() + " " + patientObj.get().getLastName(), smallBold));
-
 		addEmptyLine(para, 1);
-
 		para.add(new Paragraph("Doctor Name: " + physician.getName(), smallBold));
-
 		addEmptyLine(para, 1);
-
 		para.add(new Paragraph("Appointment Date: " + dateFormat.format(appointmentDateConverted), smallBold));
-
 		addEmptyLine(para, 1);
-
 		para.add(new Paragraph("Appointment Slot: " + appointmentSlot, smallBold));
-
 		addEmptyLine(para, 25);
-
 		para.add(new Paragraph("Appointments are subjected to availability of doctor", redFont));
-
 		document.add(para);
 	}
 

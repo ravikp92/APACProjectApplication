@@ -7,13 +7,17 @@ import java.util.Date;
 import java.util.Optional;
 import java.util.Scanner;
 
+import com.ravi.patient.app.model.Appointment;
 import com.ravi.patient.app.model.Patient;
 import com.ravi.patient.app.model.Physician;
 import com.ravi.patient.app.service.AppointmentService;
 import com.ravi.patient.app.service.PatientService;
 import com.ravi.patient.app.util.AppointmentUtility;
 
-
+/**
+ * @author RaviP
+ *
+ */
 public class AppointmentHelper {
 	AppointmentService appointmentService = new AppointmentService();
 
@@ -28,8 +32,8 @@ public class AppointmentHelper {
 				System.out.println("Booking Appointment.....\n");
 				Optional<Patient> patientDetail = getPatientDetail(scanner, patientService);
 				if (patientDetail.isPresent()) {
-					
-					System.out.println("\n Patient Data : "+patientDetail.get());
+
+					System.out.println("\n Patient Data : " + patientDetail.get());
 
 					physicianNameTryCount = validatePhysicianAndBookAppointment(scanner, physicianNameTryCount,
 							patientDetail);
@@ -58,7 +62,7 @@ public class AppointmentHelper {
 	}
 
 	private void exitIfTryCountExceed(int patientIdTryCount, int physicianNameTryCount) {
-		if (patientIdTryCount == 3||physicianNameTryCount == 3) {
+		if (patientIdTryCount == 3 || physicianNameTryCount == 3) {
 			System.out.println("Data entered is invalid and Maximum limit allowed is 3. \n ");
 			System.out.println("Exiting... \n ");
 			System.exit(0);
@@ -68,26 +72,29 @@ public class AppointmentHelper {
 	private int validatePhysicianAndBookAppointment(Scanner scanner, int physicianNameTryCount,
 			Optional<Patient> patientDetail) throws ParseException {
 		do {
-			
+
 			System.out.println("Enter Physician Name :\n");
 			String nameOfPhysician = scanner.next();
 
 			Physician physician = appointmentService.getAllPhysicians().stream()
-					.filter(phy -> nameOfPhysician.equalsIgnoreCase(phy.getName())).findFirst()
-					.orElse(null);
+					.filter(phy -> nameOfPhysician.equalsIgnoreCase(phy.getName())).findFirst().orElse(null);
 
 			if (physician != null) {
 
 				System.out.println("Provide Appointment Date in dd/MM/yyyy format:\n");
 				String appointDate = scanner.next();
-
+				String appointSlot=null;
+				while (!validateCurrentBeforeInputDate(appointDate)) {
+					System.out.println("Please Enter future Date in dd/MM/yyyy format:\n");
+					appointDate = scanner.next();
+					break;
+				}
 				System.out.println("Provide Appointment Slot: in HH:MM format:\n");
-				String appointSlot = scanner.next();
-
+				appointSlot= scanner.next();
 				Date appointParseDate = new SimpleDateFormat("dd/MM/yyyy").parse(appointDate);
 
-				boolean isAppointMentSlotBlocked = appointmentService.checkAppointmentSlotForPhysician(
-						physician, patientDetail, appointParseDate, appointSlot);
+				boolean isAppointMentSlotBlocked = appointmentService.checkAppointmentSlotForPhysician(physician,
+						patientDetail, appointParseDate, appointSlot);
 
 				if (isAppointMentSlotBlocked) {
 					System.out.println("Appointment Slot not available for Physician " + physician.getName()
@@ -95,13 +102,12 @@ public class AppointmentHelper {
 
 				} else {
 
-					String bookingMessage = appointmentService.bookAppointmentWithPhysician(physician,
-							patientDetail, appointParseDate, appointSlot);
+					String bookingMessage = appointmentService.bookAppointmentWithPhysician(physician, patientDetail,
+							appointParseDate, appointSlot);
 
 					if (bookingMessage != null) {
 
-						System.out.println("Appointment booked with Appointment No.: "
-								+ bookingMessage);
+						System.out.println("Appointment booked with Appointment No.: " + bookingMessage);
 						successAppointmentResponse(patientDetail, physician, appointSlot, appointParseDate,
 								bookingMessage);
 					} else {
@@ -111,28 +117,48 @@ public class AppointmentHelper {
 
 				break;
 			} else {
-				System.out.println("No physician present with Physician "+nameOfPhysician+" , Please try again.\n");
+				System.out.println("No physician present with Physician " + nameOfPhysician + " , Please try again.\n");
 				physicianNameTryCount++;
 			}
 		} while (physicianNameTryCount < 3);
-		
+
 		return physicianNameTryCount;
 	}
 
+	
+	private boolean validateCurrentBeforeInputDate(String appointDate) throws ParseException {
+		Date newinputDate = new SimpleDateFormat("dd/MM/yyyy").parse(appointDate);
+		return new Date().before(newinputDate);
+	}
+
+	private boolean validateExistingBeforeInputDate(Date existDate,String newDate) throws ParseException {
+		Date newinputDate = new SimpleDateFormat("dd/MM/yyyy").parse(newDate);
+		return existDate.before(newinputDate);
+	}
+
+	/**
+	 * This method will be called on success of reschedule and booking appointment
+	 * 
+	 * @param patientDetail
+	 * @param physician
+	 * @param appointSlot
+	 * @param appointParseDate
+	 * @param bookingMessage
+	 */
 	private void successAppointmentResponse(Optional<Patient> patientDetail, Physician physician, String appointSlot,
 			Date appointParseDate, String bookingMessage) {
 		DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
 
 		System.out.println("Appointment Id: " + bookingMessage);
 		System.out.println("Patient Id:" + patientDetail.get().getId());
-		System.out.println("Patient Name:" + patientDetail.get().getFirstName() + " "
-				+ patientDetail.get().getLastName());
+		System.out.println(
+				"Patient Name:" + patientDetail.get().getFirstName() + " " + patientDetail.get().getLastName());
 		System.out.println("Doctor Name:" + physician.getName());
 		System.out.println("Appointment Date:" + dateFormat.format(appointParseDate));
 		System.out.println("Appointment Slot:" + appointSlot);
 
-		AppointmentUtility.generateAppointmentPDF(physician, patientDetail, appointParseDate,
-				appointSlot, bookingMessage);
+		AppointmentUtility.generateAppointmentPDF(physician, patientDetail, appointParseDate, appointSlot,
+				bookingMessage);
 	}
 
 	public void cancelAppointment(Scanner scanner) {
@@ -147,7 +173,8 @@ public class AppointmentHelper {
 				boolean isAppointmentExists = appointmentService.checkAppointmentByPatientId(patientIdInt);
 
 				if (isAppointmentExists) {
-					System.out.println("Are you Sure You want to Cancel the appointment ? Press Y for Yes or N for No \n");
+					System.out.println(
+							"Are you Sure You want to Cancel the appointment ? Press Y for Yes or N for No \n");
 					String confirmCancel = scanner.next();
 					if ("Y".equalsIgnoreCase(confirmCancel)) {
 
@@ -187,7 +214,7 @@ public class AppointmentHelper {
 			System.out.println("Exiting... \n ");
 			System.exit(0);
 		}
-		
+
 	}
 
 	public void rescheduleAppointment(Scanner scanner) throws ParseException {
@@ -201,20 +228,20 @@ public class AppointmentHelper {
 			try {
 				System.out.println("Rescheduling Appointment.....\n");
 				System.out.println("Enter Patient ID : \n");
-				String patientId = scanner.next();
-				int patientIdInt = Integer.parseInt(patientId);
+				String patientIdInput = scanner.next();
+				int patientId = Integer.parseInt(patientIdInput);
 
-				boolean isAppointmentExists = appointmentService.checkAppointmentByPatientId(patientIdInt);
+				boolean isAppointmentExists = appointmentService.checkAppointmentByPatientId(patientId);
 
 				if (isAppointmentExists) {
 					System.out.println("Do you want to reschedule the appointment? Press Y for Yes or N for No \n");
 					String confirmReschedule = scanner.next();
 					if ("Y".equalsIgnoreCase(confirmReschedule)) {
 
-						Optional<Patient> patientObj = patientService.searchPatientById(patientIdInt);
+						Optional<Patient> patientObj = patientService.searchPatientById(patientId);
 
 						if (patientObj.isPresent()) {
-							System.out.println("\n Patient Data : "+patientObj.get());
+							System.out.println("\n Patient Data : " + patientObj.get());
 							do {
 								System.out.println("Enter Physician Name :\n");
 								String physicianName = scanner.next();
@@ -225,29 +252,37 @@ public class AppointmentHelper {
 
 								if (physician != null) {
 
-									System.out.println("Enter New Appointment Date in dd/MM/yyyy format:\n");
-									String appointmentDate = scanner.next();
 
+									Optional<Appointment> appointmentObj = appointmentService
+											.getAppointmentByPatientId(patientId);
+
+									System.out.println("Enter New Appointment Date in dd/MM/yyyy format:\n");
+									String newAppointmentDate = scanner.next();
+
+									while (!validateExistingBeforeInputDate(appointmentObj.get().getAppointmentDate(),newAppointmentDate)) {
+										System.out.println("Please Enter Future Date after exisitng scheduled date: "+appointmentObj.get().getAppointmentDate()+" \n");
+										newAppointmentDate = scanner.next();
+										break;
+									}
 									System.out.println("Enter New Appointment Slot: in HH:MM format:\n");
 									String appointmentSlot = scanner.next();
 
-									Date appointDate = new SimpleDateFormat("dd/MM/yyyy")
-											.parse(appointmentDate);
+									Date appointDate = new SimpleDateFormat("dd/MM/yyyy").parse(newAppointmentDate);
 
 									boolean isAppointmentBlocked = appointmentService.checkAppointmentSlotForPhysician(
 											physician, patientObj, appointDate, appointmentSlot);
 
 									if (isAppointmentBlocked) {
 										System.out.println("Appointment Slot is not available for Physician "
-												+ physician.getName() + " for Date- " + appointDate
-												+ " & Timeslot- " + appointmentSlot);
+												+ physician.getName() + " for Date- " + appointDate + " & Timeslot- "
+												+ appointmentSlot);
 										rescheduleFlag = true;
 										break;
 
 									} else {
 
-										resultMessage = appointmentService.rescheduleAppointmentForExisitngPatient(physician,
-												patientObj, appointDate, appointmentSlot);
+										resultMessage = appointmentService.rescheduleAppointmentForExisitngPatient(
+												physician, patientObj, appointDate, appointmentSlot);
 
 										if (resultMessage != null) {
 
@@ -306,7 +341,7 @@ public class AppointmentHelper {
 			System.out.println("Exiting... \n ");
 			System.exit(0);
 		}
-		
+
 	}
 
 }

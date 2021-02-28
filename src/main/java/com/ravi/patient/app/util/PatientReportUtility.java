@@ -31,15 +31,15 @@ public class PatientReportUtility implements PatientAppConstant {
 	 * 
 	 * Generating patient report pdf
 	 * @param patientObj
-	 * @param patientHistoryObj
+	 * @param patientMedicalHistoryObj
 	 */
 	public static void generatePatientReportPDF(Optional<Patient> patientObj,
-			Optional<PatientMedicalHistory> patientHistoryObj) {
+			Optional<PatientMedicalHistory> patientMedicalHistoryObj) {
 		try {
 			Document document = new Document();
-			PdfWriter.getInstance(document, new FileOutputStream("./Patient" + "_" + new Date().getTime()));
+			PdfWriter.getInstance(document, new FileOutputStream("./Patient_"+patientObj.get().getId()+"_"+patientObj.get().getFirstName()+"_"+patientObj.get().getLastName() + "_" + new Date().getTime()));
 			document.open();
-			addContentForPatientReport(document, patientObj, patientHistoryObj);
+			addContentForPatientReport(document, patientObj, patientMedicalHistoryObj);
 			document.close();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -48,20 +48,20 @@ public class PatientReportUtility implements PatientAppConstant {
 	}
 	
 	private static void addContentForPatientReport(Document document, Optional<Patient> patientObj,
-			Optional<PatientMedicalHistory> patientHistoryObj) throws DocumentException {
+			Optional<PatientMedicalHistory> patientMedicalHistoryObj) throws DocumentException {
 		Anchor anchor = new Anchor("Patient Report Details:", catFont);
 		anchor.setName("Patient Report Details:");
-		Chapter catPart = new Chapter(new Paragraph(anchor), 1);
+		Chapter sectionChapter = new Chapter(new Paragraph(anchor), 1);
 		Paragraph paragraph = new Paragraph();
 		addEmptyLine(paragraph, 5);
-		catPart.add(paragraph);
-		createTableForPatientReport(catPart, patientObj, patientHistoryObj);
-		document.add(catPart);
+		sectionChapter.add(paragraph);
+		createTableForPatientReport(sectionChapter, patientObj, patientMedicalHistoryObj);
+		document.add(sectionChapter);
 	}
 
 
-	private static void createTableForPatientReport(Section subCatPart, Optional<Patient> patientObj,
-			Optional<PatientMedicalHistory> patientHistoryObj) throws BadElementException {
+	private static void createTableForPatientReport(Section section, Optional<Patient> patientObj,
+			Optional<PatientMedicalHistory> patientMedicalHistoryObj) throws BadElementException {
 		PdfPTable table = new PdfPTable(2);
 
 		PdfPCell c1 = new PdfPCell(new Phrase("Patient Data"));
@@ -96,20 +96,20 @@ public class PatientReportUtility implements PatientAppConstant {
 		table.addCell(patientObj.get().getEmail());
 
 		table.addCell("Patient Height");
-		table.addCell(String.valueOf(patientHistoryObj.get().getHeight()));
+		table.addCell(String.valueOf(patientMedicalHistoryObj.get().getHeight()));
 
 		table.addCell("Patient Weight");
-		table.addCell(String.valueOf(patientHistoryObj.get().getWeight()));
+		table.addCell(String.valueOf(patientMedicalHistoryObj.get().getWeight()));
 
 		table.addCell("Patient Blood Pressure");
-		table.addCell(String.valueOf(patientHistoryObj.get().getBloodPressure()));
+		table.addCell(String.valueOf(patientMedicalHistoryObj.get().getBloodPressure()));
 
 		table.addCell("Patient Pulse Rate");
-		table.addCell(String.valueOf(patientHistoryObj.get().getPulseRate()));
+		table.addCell(String.valueOf(patientMedicalHistoryObj.get().getPulseRate()));
 
 		table.addCell("Patient Affected Organ");
-		table.addCell(patientHistoryObj.get().getAffectedOrgan());
-		subCatPart.add(table);
+		table.addCell(patientMedicalHistoryObj.get().getAffectedOrgan());
+		section.add(table);
 
 	}
 	
@@ -123,7 +123,7 @@ public class PatientReportUtility implements PatientAppConstant {
 			Optional<Patient> patientObj) {
 		try {
 			Document document = new Document();
-			PdfWriter.getInstance(document, new FileOutputStream("./Appointment" + "_" + new Date().getTime()));
+			PdfWriter.getInstance(document, new FileOutputStream("./Appointment_"+appointmentObj.get().getId()+"_"+patientObj.get().getFirstName()+"_"+patientObj.get().getLastName() + "_" + new Date().getTime()));
 			document.open();
 			addContentForAppointmentReport(document, appointmentObj, patientObj);
 
