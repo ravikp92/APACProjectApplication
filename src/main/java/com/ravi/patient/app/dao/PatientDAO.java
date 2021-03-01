@@ -12,6 +12,7 @@ import java.util.Optional;
 import org.apache.log4j.Logger;
 
 import com.ravi.patient.app.config.DBconfiguration;
+import com.ravi.patient.app.constant.DBConstants;
 import com.ravi.patient.app.model.Patient;
 import com.ravi.patient.app.model.PatientMedicalHistory;
 
@@ -19,7 +20,7 @@ import com.ravi.patient.app.model.PatientMedicalHistory;
  * @author RaviP
  *
  */
-public class PatientDAO {
+public class PatientDAO implements DBConstants {
 
 	private static Logger logger = Logger.getLogger(PatientDAO.class);
 
@@ -34,12 +35,12 @@ public class PatientDAO {
 		}
 	}
 
-	public Optional<Patient> searchPatientById(int id){
+	public Optional<Patient> searchPatientById(int id) {
 
 		Optional<Patient> opt = Optional.ofNullable(null);
 
 		try {
-			prepStmt = databaseConnection.prepareStatement("SELECT * from PATIENT WHERE ID=?");
+			prepStmt = databaseConnection.prepareStatement(QUERY_SEARCHPATIENTBYID);
 			prepStmt.setInt(1, id);
 			ResultSet rs = prepStmt.executeQuery();
 
@@ -62,7 +63,8 @@ public class PatientDAO {
 		Optional<PatientMedicalHistory> opt = Optional.ofNullable(null);
 
 		try {
-			prepStmt = databaseConnection.prepareStatement("SELECT * from PATIENTMEDICALHISTORY WHERE PATIENTID=?");
+
+			prepStmt = databaseConnection.prepareStatement(QUERY_SEARCHPATIENTMEDICALHISTBYPATIENTID);
 			prepStmt.setInt(1, id);
 			ResultSet rs = prepStmt.executeQuery();
 
@@ -79,10 +81,11 @@ public class PatientDAO {
 
 	}
 
-	public int getMaxIdForPatientTable() {
+	public int getPatientsMaxId() {
 
 		try {
-			prepStmt = databaseConnection.prepareStatement("SELECT MAX(ID) from PATIENT");
+
+			prepStmt = databaseConnection.prepareStatement(QUERY_GETMAXPATIENTID);
 			ResultSet rs = prepStmt.executeQuery();
 			while (rs.next()) {
 				return rs.getInt(1);
@@ -95,9 +98,10 @@ public class PatientDAO {
 
 	}
 
-	public int getMaxIdForPatientMedicalHistoryTable() {
+	public int getPatientMedicalHistoryMaxId() {
 		try {
-			prepStmt = databaseConnection.prepareStatement("SELECT MAX(ID) from PATIENTMEDICALHISTORY");
+
+			prepStmt = databaseConnection.prepareStatement(QUERY_GETMAXPATIENTMEDICALHISTORYID);
 			ResultSet rs = prepStmt.executeQuery();
 			while (rs.next()) {
 				return rs.getInt(1);
@@ -115,7 +119,8 @@ public class PatientDAO {
 		int result = 0;
 
 		try {
-			prepStmt = databaseConnection.prepareStatement("DELETE from PATIENT WHERE ID=?");
+
+			prepStmt = databaseConnection.prepareStatement(QUERY_DELETEPATIENTBYID);
 			prepStmt.setInt(1, id);
 			result = prepStmt.executeUpdate();
 
@@ -131,8 +136,7 @@ public class PatientDAO {
 		int result = 0;
 
 		try {
-
-			prepStmt = databaseConnection.prepareStatement("DELETE from PATIENTMEDICALHISTORY WHERE PATIENTID=?");
+			prepStmt = databaseConnection.prepareStatement(QUERY_DELETEPATIENTMEDHISTORYBYID);
 			prepStmt.setInt(1, id);
 			result = prepStmt.executeUpdate();
 
@@ -143,15 +147,13 @@ public class PatientDAO {
 
 	}
 
-	public String addPatient(Patient patient, PatientMedicalHistory PatientMedicalHistory) {
-		patient.setId(getMaxIdForPatientTable() + 1);
-		PatientMedicalHistory.setId(getMaxIdForPatientMedicalHistoryTable() + 1);
+	public String createPatient(Patient patient, PatientMedicalHistory PatientMedicalHistory) {
+		patient.setId(getPatientsMaxId() + 1);
+		PatientMedicalHistory.setId(getPatientMedicalHistoryMaxId() + 1);
 		int status = 0;
 
 		try {
-			prepStmt = databaseConnection.prepareStatement(
-					"INSERT INTO PATIENT(ID, FIRSTNAME,LASTNAME, ADDRESS,EMAIL,PHONENUMBER,CITY,STATE,GENDER,DOB,SSN)"
-							+ "VALUES (?, ?, ?,?,?,?,?,?,?,?,?)");
+			prepStmt = databaseConnection.prepareStatement(QUERY_INSERTPATIENT);
 			prepStmt.setInt(1, patient.getId());
 			prepStmt.setString(2, patient.getFirstName());
 			prepStmt.setString(3, patient.getLastName());
@@ -168,9 +170,7 @@ public class PatientDAO {
 
 			if (status > 0) {
 
-				prepStmt = databaseConnection.prepareStatement(
-						"INSERT INTO PATIENTMEDICALHISTORY(ID,PATIENTID,HEIGHT, WEIGHT,BLOODPRESSURE,PULSERATE,AFFECTEDORGAN)"
-								+ "VALUES (?, ?, ?,?,?,?,?)");
+				prepStmt = databaseConnection.prepareStatement(QUERY_INSERTPATIENTMEDIHISTORY);
 				prepStmt.setInt(1, PatientMedicalHistory.getId());
 				prepStmt.setInt(2, patient.getId());
 				prepStmt.setDouble(3, PatientMedicalHistory.getHeight());
@@ -200,9 +200,8 @@ public class PatientDAO {
 
 	public int updatePatient(Patient patient) {
 		try {
-			prepStmt = databaseConnection.prepareStatement(
-					"UPDATE PATIENT SET FIRSTNAME=?,LASTNAME=?,ADDRESS=?,EMAIL=?,PHONENUMBER=?,CITY=?,STATE=?,GENDER=?,DOB=?,SSN=? "
-							+ " WHERE ID=?");
+
+			prepStmt = databaseConnection.prepareStatement(QUERY_UPDATEPATIENT);
 
 			prepStmt.setString(1, patient.getFirstName());
 			prepStmt.setString(2, patient.getLastName());
@@ -227,9 +226,8 @@ public class PatientDAO {
 
 	public int updatePatientMedicalHistory(PatientMedicalHistory PatientMedicalHistory) {
 		try {
-			prepStmt = databaseConnection.prepareStatement(
-					"UPDATE PATIENTMEDICALHISTORY SET HEIGHT=?,WEIGHT=?,BLOODPRESSURE=?,PULSERATE=?,AFFECTEDORGAN=?"
-							+ " WHERE PATIENTID=?");
+
+			prepStmt = databaseConnection.prepareStatement(QUERY_UPDATEPATIENTMEDHISTORY);
 
 			prepStmt.setDouble(1, PatientMedicalHistory.getHeight());
 			prepStmt.setDouble(2, PatientMedicalHistory.getWeight());

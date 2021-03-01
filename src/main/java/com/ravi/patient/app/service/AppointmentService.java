@@ -13,51 +13,46 @@ import com.ravi.patient.app.model.Appointment;
 import com.ravi.patient.app.model.Patient;
 import com.ravi.patient.app.model.Physician;
 
-
 /**
  * @author RaviP
  *
  */
 public class AppointmentService {
 
-	
-	
-	AppointmentDAO appointmentDAO=new AppointmentDAO();
-	
+	AppointmentDAO appointmentDAO = new AppointmentDAO();
+
 	public List<Physician> getAllPhysicians() {
 		return appointmentDAO.getAllPhysicians();
 	}
 
 	public String bookAppointmentWithPhysician(Physician physician, Optional<Patient> patientObj,
 			Date appointmentDateConverted, String appointmentSlot) {
-		
-		return appointmentDAO.bookAppointmentForPatient( physician,  patientObj,
-				 appointmentDateConverted,  appointmentSlot);
+
+		return appointmentDAO.bookAppointmentForPatient(physician, patientObj, appointmentDateConverted,
+				appointmentSlot);
 	}
-	
-	public boolean cancelAppointmentForPatientId(int patientId){
-		return appointmentDAO.cancelAppointmentForPatientId( patientId);
+
+	public boolean cancelAppointmentForPatientId(int patientId) {
+		return appointmentDAO.cancelAppointmentForPatientId(patientId);
 	}
 
 	public String rescheduleAppointmentForExisitngPatient(Physician physician, Optional<Patient> patientObj,
 			Date appointmentDateConverted, String appointmentSlot) {
-		return appointmentDAO.rescheduleAppointmentForPatientId(physician, patientObj,
-				 appointmentDateConverted,  appointmentSlot); 
+		return appointmentDAO.rescheduleAppointmentForPatientId(physician, patientObj, appointmentDateConverted,
+				appointmentSlot);
 	}
-	
-	
+
 	public boolean checkAppointmentSlotForPhysician(Physician physician, Optional<Patient> patientObj,
 			Date appointmentDate, String appointmentSlot) throws ParseException {
-		
-		return appointmentDAO.checkIfAppointmentSlotAvailable( physician,  patientObj,
-				 appointmentDate,  appointmentSlot);
+
+		return appointmentDAO.checkIfAppointmentSlotAvailable(physician, patientObj, appointmentDate, appointmentSlot);
 	}
-	
-	public boolean checkAppointmentByPatientId(int patientId){
-		return appointmentDAO.checkAppointmentExistsForPatientId( patientId);
+
+	public boolean checkAppointmentByPatientId(int patientId) {
+		return appointmentDAO.checkAppointmentExistsForPatientId(patientId);
 	}
-	
+
 	public Optional<Appointment> getAppointmentByPatientId(int patientIdInt) {
-		return appointmentDAO.getAppointmentByPatientId(patientIdInt);
+		return appointmentDAO.getAllAppointmentsByPatientId(patientIdInt);
 	}
 }

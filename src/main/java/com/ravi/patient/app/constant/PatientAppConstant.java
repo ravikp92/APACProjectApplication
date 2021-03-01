@@ -12,5 +12,6 @@ public interface PatientAppConstant {
 	Font catFont = new Font(Font.FontFamily.TIMES_ROMAN, 18, Font.BOLD);
 	Font redFont = new Font(Font.FontFamily.TIMES_ROMAN, 12, Font.NORMAL, BaseColor.RED);
 	Font smallBold = new Font(Font.FontFamily.TIMES_ROMAN, 12, Font.BOLD);
+	String APPOINTMENT_PREFIX = "Appointment_";
 
 }

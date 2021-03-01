@@ -13,6 +13,8 @@ import java.util.Optional;
 import org.apache.log4j.Logger;
 
 import com.ravi.patient.app.config.DBconfiguration;
+import com.ravi.patient.app.constant.DBConstants;
+import com.ravi.patient.app.constant.PatientAppConstant;
 import com.ravi.patient.app.model.Appointment;
 import com.ravi.patient.app.model.Patient;
 import com.ravi.patient.app.model.Physician;
@@ -21,7 +23,7 @@ import com.ravi.patient.app.model.Physician;
  * @author RaviP
  *
  */
-public class AppointmentDAO {
+public class AppointmentDAO implements PatientAppConstant, DBConstants {
 
 	private static Logger logger = Logger.getLogger(AppointmentDAO.class);
 
@@ -36,16 +38,14 @@ public class AppointmentDAO {
 		}
 	}
 
-	private static final String APPOINTMENT_PREFIX = "Appointment_";
-
 	public List<Physician> getAllPhysicians() {
 		prepStmt = null;
 		List<Physician> physicianList = new ArrayList<Physician>();
 
 		try {
-			prepStmt = databaseConnection.prepareStatement("SELECT * from PHYSICIAN");
+			prepStmt = databaseConnection.prepareStatement(QUERY_GETALLPHYSICIANS);
 			ResultSet rs = prepStmt.executeQuery();
-			
+
 			while (rs.next()) {
 				physicianList.add(new Physician(rs.getInt(1), rs.getString(2)));
 			}
@@ -59,13 +59,12 @@ public class AppointmentDAO {
 
 	public boolean checkIfAppointmentSlotAvailable(Physician physician, Optional<Patient> patientObj,
 			Date appointmentDate, String appointmentSlot) throws ParseException {
-	
+
 		prepStmt = null;
 
 		try {
 
-			prepStmt = databaseConnection.prepareStatement(
-					"SELECT * from APPOINTMENTSLOTS WHERE DRNAME=? AND APPOINTMENTDATE=? AND APPOINTMENTSLOT=?");
+			prepStmt = databaseConnection.prepareStatement(QUERY_CHECKAPPOINTMENTSLOTAVAILABLE);
 			prepStmt.setString(1, physician.getName());
 			prepStmt.setTimestamp(2, new java.sql.Timestamp(appointmentDate.getTime()));
 			prepStmt.setString(3, appointmentSlot);
@@ -83,41 +82,17 @@ public class AppointmentDAO {
 
 	}
 
-	public Optional<Patient> searchPatientById(int id) {
-		prepStmt = null;
-		Optional<Patient> patientData = Optional.ofNullable(null);
-
-		try {
-			prepStmt = databaseConnection.prepareStatement("SELECT * from PATIENT WHERE ID=?");
-			prepStmt.setInt(1, id);
-			ResultSet rs = prepStmt.executeQuery();
-
-			while (rs.next()) {
-				patientData = Optional.ofNullable(new Patient(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getString(4),
-						rs.getString(5), rs.getString(6), rs.getString(7), rs.getString(8), rs.getString(9),
-						rs.getDate(10), rs.getString(11)));
-			}
-
-		} catch (SQLException e) {
-
-			logger.error(e.getMessage());
-		}
-		return patientData;
-
-	}
-
 	public String bookAppointmentForPatient(Physician physician, Optional<Patient> patientObj,
 			Date appointmentDateConverted, String appointmentSlot) {
 
-		int appointmentId = (getMaxIdForAPPOINTMENTSLOTSTable() + 1);
+		int appointmentId = (getAppointmentsMaxId() + 1);
 		prepStmt = null;
 
 		int status = 0;
 
 		try {
-			prepStmt = databaseConnection.prepareStatement(
-					"INSERT INTO APPOINTMENTSLOTS(ID,APPOINTMENTID,PATIENTID,DRID,DRNAME,APPOINTMENTDATE,APPOINTMENTSLOT)"
-							+ " VALUES(?,?,?,?,?,?,?);");
+
+			prepStmt = databaseConnection.prepareStatement(QUERY_BOOKAPPOINTMENTFORPATIENT);
 			prepStmt.setInt(1, appointmentId);
 			prepStmt.setString(2, APPOINTMENT_PREFIX + appointmentId);
 			prepStmt.setInt(3, patientObj.get().getId());
@@ -141,10 +116,11 @@ public class AppointmentDAO {
 
 	}
 
-	public int getMaxIdForAPPOINTMENTSLOTSTable() {
+	public int getAppointmentsMaxId() {
 
 		try {
-			prepStmt = databaseConnection.prepareStatement("SELECT MAX(ID) from APPOINTMENTSLOTS");
+
+			prepStmt = databaseConnection.prepareStatement(QUERY_GETMAXIDFORAPPOINTMENTS);
 
 			ResultSet rs = prepStmt.executeQuery();
 
@@ -162,9 +138,10 @@ public class AppointmentDAO {
 	}
 
 	public boolean checkAppointmentExistsForPatientId(int patientId) {
-		
+
 		try {
-			prepStmt = databaseConnection.prepareStatement("SELECT ID from APPOINTMENTSLOTS WHERE PATIENTID=?");
+
+			prepStmt = databaseConnection.prepareStatement(QUERY_CHECKAPPOINTMENTEXISTSFORPATIENTID);
 
 			prepStmt.setInt(1, patientId);
 			ResultSet rs = prepStmt.executeQuery();
@@ -184,9 +161,9 @@ public class AppointmentDAO {
 
 	public boolean cancelAppointmentForPatientId(int patientId) {
 
-		
 		try {
-			prepStmt = databaseConnection.prepareStatement("DELETE FROM APPOINTMENTSLOTS WHERE PATIENTID=? ");
+
+			prepStmt = databaseConnection.prepareStatement(QUERY_CANCELAPPOINTMENTFORPATIENTID);
 
 			prepStmt.setInt(1, patientId);
 
@@ -214,9 +191,8 @@ public class AppointmentDAO {
 		int status = 0;
 
 		try {
-			prepStmt = databaseConnection.prepareStatement(
-					"UPDATE APPOINTMENTSLOTS SET DRID=?,DRNAME=?,APPOINTMENTDATE=?,APPOINTMENTSLOT=? "
-							+ " WHERE PATIENTID=?;");
+
+			prepStmt = databaseConnection.prepareStatement(QUERY_RESCHEDULEAPPOINTMENTFORPATIENTID);
 
 			prepStmt.setInt(1, physician.getId());
 			prepStmt.setString(2, physician.getName());
@@ -242,7 +218,8 @@ public class AppointmentDAO {
 	public String getAppointmentIdByPatientId(int patientId) {
 
 		try {
-			prepStmt = databaseConnection.prepareStatement("SELECT APPOINTMENTID from APPOINTMENTSLOTS WHERE PATIENTID=?");
+
+			prepStmt = databaseConnection.prepareStatement(QUERY_GETAPPOINTMENTBYPATIENTID);
 
 			prepStmt.setInt(1, patientId);
 			ResultSet rs = prepStmt.executeQuery();
@@ -261,11 +238,12 @@ public class AppointmentDAO {
 		return "";
 	}
 
-	public Optional<Appointment> getAppointmentByPatientId(int patientId) {
+	public Optional<Appointment> getAllAppointmentsByPatientId(int patientId) {
 
 		Optional<Appointment> opt = Optional.ofNullable(null);
 		try {
-			prepStmt = databaseConnection.prepareStatement("SELECT * from APPOINTMENTSLOTS WHERE PATIENTID=?");
+
+			prepStmt = databaseConnection.prepareStatement(QUERY_GETALLAPPOINTMENTSFORPATIENTID);
 
 			prepStmt.setInt(1, patientId);
 			ResultSet rs = prepStmt.executeQuery();

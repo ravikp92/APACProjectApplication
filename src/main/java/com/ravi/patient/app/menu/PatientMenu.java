@@ -10,7 +10,7 @@ public class PatientMenu {
 	public int init(Scanner scanner) throws ParseException {
 		
 		while (true) {
-			dsiplayPatientMenu();
+			displayPatientMenu();
 			PatientHelper patientHelper=new PatientHelper();
 			System.out.println("Please select from options :");
 			
@@ -47,7 +47,7 @@ public class PatientMenu {
 		
 	}
 
-	private void dsiplayPatientMenu() {
+	private void displayPatientMenu() {
 		System.out.println("---------------------------");
 		System.out.println("-------Patient Menu--------");
 		System.out.println("---------------------------");

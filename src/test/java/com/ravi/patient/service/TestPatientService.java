@@ -47,7 +47,7 @@ public class TestPatientService {
     			, "1234568");
     	PatientMedicalHistory patientMedicalHistory = new PatientMedicalHistory(2, 2, 5.8, 70, 80, 2.5, AffectedOrgan.HANDS.toString());
     	
-    	when(patientDao.addPatient(patient, patientMedicalHistory)).
+    	when(patientDao.createPatient(patient, patientMedicalHistory)).
     	thenReturn("Patient and Medical History Record is added successfully!!");
     }
     
