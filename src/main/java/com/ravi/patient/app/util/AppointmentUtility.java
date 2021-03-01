@@ -17,7 +17,7 @@ import com.ravi.patient.app.model.Physician;
 public class AppointmentUtility implements PatientAppConstant {
 
 	/**
-	 * Generating Appointment Pdf for book and reschedule 
+	 * Generating Appointment Pdf for book and reschedule
 	 * 
 	 * @param physician
 	 * @param patientObj

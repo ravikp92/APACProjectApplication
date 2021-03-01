@@ -30,6 +30,7 @@ public class PatientReportUtility implements PatientAppConstant {
 	/**
 	 * 
 	 * Generating patient report pdf
+	 * 
 	 * @param patientObj
 	 * @param patientMedicalHistoryObj
 	 */
@@ -37,7 +38,9 @@ public class PatientReportUtility implements PatientAppConstant {
 			Optional<PatientMedicalHistory> patientMedicalHistoryObj) {
 		try {
 			Document document = new Document();
-			PdfWriter.getInstance(document, new FileOutputStream("./Patient_"+patientObj.get().getId()+"_"+patientObj.get().getFirstName()+"_"+patientObj.get().getLastName() + "_" + new Date().getTime()));
+			PdfWriter.getInstance(document,
+					new FileOutputStream(PATIENT_FILE+SEPARATOR + patientObj.get().getId() + SEPARATOR + patientObj.get().getFirstName()
+							+SEPARATOR + patientObj.get().getLastName() + SEPARATOR + new Date().getTime()));
 			document.open();
 			addContentForPatientReport(document, patientObj, patientMedicalHistoryObj);
 			document.close();
@@ -46,11 +49,11 @@ public class PatientReportUtility implements PatientAppConstant {
 		}
 
 	}
-	
+
 	private static void addContentForPatientReport(Document document, Optional<Patient> patientObj,
 			Optional<PatientMedicalHistory> patientMedicalHistoryObj) throws DocumentException {
-		Anchor anchor = new Anchor("Patient Report Details:", catFont);
-		anchor.setName("Patient Report Details:");
+		Anchor anchor = new Anchor(PATIENT_REPORT_TITLE, catFont);
+		anchor.setName(PATIENT_REPORT_TITLE);
 		Chapter sectionChapter = new Chapter(new Paragraph(anchor), 1);
 		Paragraph paragraph = new Paragraph();
 		addEmptyLine(paragraph, 5);
@@ -58,7 +61,6 @@ public class PatientReportUtility implements PatientAppConstant {
 		createTableForPatientReport(sectionChapter, patientObj, patientMedicalHistoryObj);
 		document.add(sectionChapter);
 	}
-
 
 	private static void createTableForPatientReport(Section section, Optional<Patient> patientObj,
 			Optional<PatientMedicalHistory> patientMedicalHistoryObj) throws BadElementException {
@@ -112,10 +114,10 @@ public class PatientReportUtility implements PatientAppConstant {
 		section.add(table);
 
 	}
-	
 
 	/**
 	 * Generating Appointment report pdf
+	 * 
 	 * @param appointmentObj
 	 * @param patientObj
 	 */
@@ -123,7 +125,10 @@ public class PatientReportUtility implements PatientAppConstant {
 			Optional<Patient> patientObj) {
 		try {
 			Document document = new Document();
-			PdfWriter.getInstance(document, new FileOutputStream("./Appointment_"+appointmentObj.get().getId()+"_"+patientObj.get().getFirstName()+"_"+patientObj.get().getLastName() + "_" + new Date().getTime()));
+			PdfWriter.getInstance(document,
+					new FileOutputStream(
+							APPOINTMENT_FILE+SEPARATOR + appointmentObj.get().getId() + SEPARATOR + patientObj.get().getFirstName()
+									+ SEPARATOR + patientObj.get().getLastName() +SEPARATOR + new Date().getTime()));
 			document.open();
 			addContentForAppointmentReport(document, appointmentObj, patientObj);
 
@@ -135,20 +140,21 @@ public class PatientReportUtility implements PatientAppConstant {
 
 	private static void addContentForAppointmentReport(Document document, Optional<Appointment> appointmentObj,
 			Optional<Patient> patientObj) throws DocumentException {
-		Anchor anchor = new Anchor("Appointment Report Details:", catFont);
-		anchor.setName("Appointment Report Details:");
+		Anchor anchor = new Anchor(APPOINTMENT_REPORT_TITLE, catFont);
+		anchor.setName(APPOINTMENT_REPORT_TITLE);
 
 		// Second parameter is the number of the chapter
 		Chapter chapter = new Chapter(new Paragraph(anchor), 1);
 		Paragraph paragraph = new Paragraph();
 		addEmptyLine(paragraph, 5);
 		chapter.add(paragraph);
-		//create a table to add
+		// create a table to add
 		createTableForAppointmentReport(chapter, appointmentObj, patientObj);
 
-		//Adding data to document
+		// Adding data to document
 		document.add(chapter);
 	}
+
 	private static void createTableForAppointmentReport(Section subCatPart, Optional<Appointment> appointmentObj,
 			Optional<Patient> patientObj) {
 		PdfPTable pdfTable = new PdfPTable(2);
