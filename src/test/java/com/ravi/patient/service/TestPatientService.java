@@ -16,12 +16,12 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import com.ravi.patient.app.dao.PatientDAO;
+import com.ravi.patient.app.dao.impl.PatientDAOImpl;
 import com.ravi.patient.app.enums.AffectedOrgan;
 import com.ravi.patient.app.enums.Gender;
 import com.ravi.patient.app.model.Patient;
 import com.ravi.patient.app.model.PatientMedicalHistory;
-import com.ravi.patient.app.service.PatientService;
+import com.ravi.patient.app.service.impl.PatientServiceImpl;
 
 @ExtendWith(MockitoExtension.class)
 @RunWith(JUnitPlatform.class)
@@ -30,10 +30,10 @@ public class TestPatientService {
 	//We have annotated PatientService class with @InjectMocks, 
 	//so mockito will create the mock object for PatientService class and inject the mock dependency of PatientDAO into it.
     @InjectMocks
-    PatientService patientService;
+    PatientServiceImpl patientService;
     
     @Mock
-    PatientDAO patientDao;
+    PatientDAOImpl patientDao;
     
     @Before
     public void init() {

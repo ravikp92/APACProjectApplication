@@ -1,6 +1,10 @@
 package com.ravi.patient.app.util;
 
 import java.io.FileOutputStream;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.Optional;
 
@@ -10,6 +14,7 @@ import com.itextpdf.text.Chapter;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Element;
+import com.itextpdf.text.Font;
 import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.Phrase;
 import com.itextpdf.text.Section;
@@ -39,77 +44,87 @@ public class PatientReportUtility implements PatientAppConstant {
 		try {
 			Document document = new Document();
 			PdfWriter.getInstance(document,
-					new FileOutputStream(PATIENT_FILE+SEPARATOR + patientObj.get().getId() + SEPARATOR + patientObj.get().getFirstName()
-							+SEPARATOR + patientObj.get().getLastName() + SEPARATOR + new Date().getTime()));
+					new FileOutputStream(PATIENT_FILE + SEPARATOR + patientObj.get().getId() + SEPARATOR
+							+ patientObj.get().getFirstName() + SEPARATOR + patientObj.get().getLastName() + SEPARATOR
+							+ new Date().getTime()));
 			document.open();
-			addContentForPatientReport(document, patientObj, patientMedicalHistoryObj);
+			addPatientDataIntoPdf(document, patientObj, patientMedicalHistoryObj);
 			document.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-
 	}
 
-	private static void addContentForPatientReport(Document document, Optional<Patient> patientObj,
+	private static void addPatientDataIntoPdf(Document document, Optional<Patient> patientObj,
 			Optional<PatientMedicalHistory> patientMedicalHistoryObj) throws DocumentException {
-		Anchor anchor = new Anchor(PATIENT_REPORT_TITLE, catFont);
-		anchor.setName(PATIENT_REPORT_TITLE);
-		Chapter sectionChapter = new Chapter(new Paragraph(anchor), 1);
-		Paragraph paragraph = new Paragraph();
-		addEmptyLine(paragraph, 5);
-		sectionChapter.add(paragraph);
-		createTableForPatientReport(sectionChapter, patientObj, patientMedicalHistoryObj);
-		document.add(sectionChapter);
+	
+		Paragraph para = new Paragraph();
+		para.add(new Paragraph(Font.BOLD, PATIENT_REPORT_TITLE));
+		addEmptyLine(para, 1);
+		para.add(new Paragraph("--------------------------------"));
+		addEmptyLine(para, 2);
+		para.add(new Paragraph("Report Generated Date :"));
+		addEmptyLine(para, 1);
+		para.add(new Paragraph(Font.BOLD, LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/YYYY")).toString()));
+		addEmptyLine(para, 1);
+		para.add(new Paragraph(
+				"--------------------------------------------------------------------------------------------------------------------"));
+		addEmptyLine(para, 2);
+		document.add(para);
+		createTableForPatientReport(document, patientObj, patientMedicalHistoryObj);
 	}
 
-	private static void createTableForPatientReport(Section section, Optional<Patient> patientObj,
-			Optional<PatientMedicalHistory> patientMedicalHistoryObj) throws BadElementException {
+	private static void createTableForPatientReport(Document section, Optional<Patient> patientObj,
+			Optional<PatientMedicalHistory> patientMedicalHistoryObj) throws DocumentException {
+		// Create two columns
 		PdfPTable table = new PdfPTable(2);
 
-		PdfPCell c1 = new PdfPCell(new Phrase("Patient Data"));
-		c1.setHorizontalAlignment(Element.ALIGN_CENTER);
+		// Add patient data header column1 and align it in center. Add in row1
+		PdfPCell c1 = new PdfPCell(new Phrase(Font.BOLD,"Patient Demographic"));
+		c1.setHorizontalAlignment(Element.ALIGN_LEFT);
 		table.addCell(c1);
 
-		c1 = new PdfPCell(new Phrase(""));
-		c1.setHorizontalAlignment(Element.ALIGN_CENTER);
+		c1 = new PdfPCell(new Phrase(Font.BOLD,"Patient Details"));
+		c1.setHorizontalAlignment(Element.ALIGN_LEFT);
 		table.addCell(c1);
 
+		// add 12 rows more for data
 		table.setHeaderRows(12);
 
 		table.addCell("Patient Id");
 		table.addCell(patientObj.get().getId().toString());
 
-		table.addCell("Patient Full Name");
+		table.addCell("Full Name");
 		table.addCell(patientObj.get().getFirstName() + " " + patientObj.get().getLastName());
 
-		table.addCell("Patient DOB");
+		table.addCell("Date of Birth");
 		table.addCell(patientObj.get().getDob().toString());
 
-		table.addCell("Patient Gender");
+		table.addCell("Gender");
 		table.addCell(patientObj.get().getGender());
 
-		table.addCell("Patient Address");
+		table.addCell("Address");
 		table.addCell(patientObj.get().getAddress());
 
-		table.addCell("Patient Phone Number");
+		table.addCell("Phone Number");
 		table.addCell(patientObj.get().getPhoneNumber());
 
-		table.addCell("Patient Email Address");
+		table.addCell("Email Address");
 		table.addCell(patientObj.get().getEmail());
 
-		table.addCell("Patient Height");
+		table.addCell("Height");
 		table.addCell(String.valueOf(patientMedicalHistoryObj.get().getHeight()));
 
-		table.addCell("Patient Weight");
+		table.addCell("Weight");
 		table.addCell(String.valueOf(patientMedicalHistoryObj.get().getWeight()));
 
-		table.addCell("Patient Blood Pressure");
+		table.addCell("Blood Pressure");
 		table.addCell(String.valueOf(patientMedicalHistoryObj.get().getBloodPressure()));
 
-		table.addCell("Patient Pulse Rate");
+		table.addCell("Pulse Rate");
 		table.addCell(String.valueOf(patientMedicalHistoryObj.get().getPulseRate()));
 
-		table.addCell("Patient Affected Organ");
+		table.addCell("Affected Organ");
 		table.addCell(patientMedicalHistoryObj.get().getAffectedOrgan());
 		section.add(table);
 
@@ -126,11 +141,11 @@ public class PatientReportUtility implements PatientAppConstant {
 		try {
 			Document document = new Document();
 			PdfWriter.getInstance(document,
-					new FileOutputStream(
-							APPOINTMENT_FILE+SEPARATOR + appointmentObj.get().getId() + SEPARATOR + patientObj.get().getFirstName()
-									+ SEPARATOR + patientObj.get().getLastName() +SEPARATOR + new Date().getTime()));
+					new FileOutputStream(APPOINTMENT_FILE + SEPARATOR + appointmentObj.get().getId() + SEPARATOR
+							+ patientObj.get().getFirstName() + SEPARATOR + patientObj.get().getLastName() + SEPARATOR
+							+ new Date().getTime()));
 			document.open();
-			addContentForAppointmentReport(document, appointmentObj, patientObj);
+			addAppointmentDataIntoPdf(document, appointmentObj, patientObj);
 
 			document.close();
 		} catch (Exception e) {
@@ -138,33 +153,36 @@ public class PatientReportUtility implements PatientAppConstant {
 		}
 	}
 
-	private static void addContentForAppointmentReport(Document document, Optional<Appointment> appointmentObj,
+	private static void addAppointmentDataIntoPdf(Document document, Optional<Appointment> appointmentObj,
 			Optional<Patient> patientObj) throws DocumentException {
-		Anchor anchor = new Anchor(APPOINTMENT_REPORT_TITLE, catFont);
-		anchor.setName(APPOINTMENT_REPORT_TITLE);
 
-		// Second parameter is the number of the chapter
-		Chapter chapter = new Chapter(new Paragraph(anchor), 1);
-		Paragraph paragraph = new Paragraph();
-		addEmptyLine(paragraph, 5);
-		chapter.add(paragraph);
+		Paragraph para = new Paragraph();
+		para.add(new Paragraph(Font.BOLD, APPOINTMENT_REPORT_TITLE));
+		addEmptyLine(para, 1);
+		para.add(new Paragraph("-----------------------------------"));
+		addEmptyLine(para, 2);
+		para.add(new Paragraph("Report Generated Date :"));
+		addEmptyLine(para, 1);
+		para.add(new Paragraph(Font.BOLD, LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/YYYY")).toString()));
+		addEmptyLine(para, 1);
+		para.add(new Paragraph(
+				"--------------------------------------------------------------------------------------------------------------------"));
+		addEmptyLine(para, 2);
+		document.add(para);
 		// create a table to add
-		createTableForAppointmentReport(chapter, appointmentObj, patientObj);
-
-		// Adding data to document
-		document.add(chapter);
+		createTableForAppointmentReport(document, appointmentObj, patientObj);
 	}
 
-	private static void createTableForAppointmentReport(Section subCatPart, Optional<Appointment> appointmentObj,
-			Optional<Patient> patientObj) {
+	private static void createTableForAppointmentReport(Document document, Optional<Appointment> appointmentObj,
+			Optional<Patient> patientObj) throws DocumentException {
 		PdfPTable pdfTable = new PdfPTable(2);
 
-		PdfPCell pdfCell = new PdfPCell(new Phrase("Appointment Details"));
-		pdfCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+		PdfPCell pdfCell = new PdfPCell(new Phrase("Appointment Info"));
+		pdfCell.setHorizontalAlignment(Element.ALIGN_LEFT);
 		pdfTable.addCell(pdfCell);
 
-		pdfCell = new PdfPCell(new Phrase(""));
-		pdfCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+		pdfCell = new PdfPCell(new Phrase("Details"));
+		pdfCell.setHorizontalAlignment(Element.ALIGN_LEFT);
 		pdfTable.addCell(pdfCell);
 
 		pdfTable.setHeaderRows(8);
@@ -175,16 +193,16 @@ public class PatientReportUtility implements PatientAppConstant {
 		pdfTable.addCell("Patient Id");
 		pdfTable.addCell(patientObj.get().getId().toString());
 
-		pdfTable.addCell("Patient Full Name");
+		pdfTable.addCell("Full Name");
 		pdfTable.addCell(patientObj.get().getFirstName() + " " + patientObj.get().getLastName());
 
-		pdfTable.addCell("Patient Gender");
+		pdfTable.addCell("Gender");
 		pdfTable.addCell(patientObj.get().getGender());
 
-		pdfTable.addCell("Patient Phone Number");
+		pdfTable.addCell("Phone Number");
 		pdfTable.addCell(patientObj.get().getPhoneNumber());
 
-		pdfTable.addCell("Patient Email Address");
+		pdfTable.addCell("Email Address");
 		pdfTable.addCell(patientObj.get().getEmail());
 
 		pdfTable.addCell("Appointment Slot");
@@ -193,7 +211,7 @@ public class PatientReportUtility implements PatientAppConstant {
 		pdfTable.addCell("Appointment Date");
 		pdfTable.addCell(appointmentObj.get().getAppointmentDate().toString());
 
-		subCatPart.add(pdfTable);
+		document.add(pdfTable);
 
 	}
 

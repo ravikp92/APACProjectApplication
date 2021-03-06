@@ -15,7 +15,7 @@ public interface PatientAppConstant {
 	Font smallBold = new Font(Font.FontFamily.TIMES_ROMAN, 12, Font.BOLD);
 	String APPOINTMENT_PREFIX = "Appointment_";
 	
-	String PATIENT_REPORT_TITLE = "Patient Report:";
-	String APPOINTMENT_REPORT_TITLE = "Appointment Report:";
+	String PATIENT_REPORT_TITLE = "Patient Report";
+	String APPOINTMENT_REPORT_TITLE = "Appointment Report";
 
 }

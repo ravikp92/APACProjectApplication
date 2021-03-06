@@ -10,8 +10,8 @@ import java.util.Scanner;
 import com.ravi.patient.app.model.Appointment;
 import com.ravi.patient.app.model.Patient;
 import com.ravi.patient.app.model.Physician;
-import com.ravi.patient.app.service.AppointmentService;
-import com.ravi.patient.app.service.PatientService;
+import com.ravi.patient.app.service.impl.AppointmentServiceImpl;
+import com.ravi.patient.app.service.impl.PatientServiceImpl;
 import com.ravi.patient.app.util.AppointmentUtility;
 
 /**
@@ -19,10 +19,10 @@ import com.ravi.patient.app.util.AppointmentUtility;
  *
  */
 public class AppointmentHelper {
-	AppointmentService appointmentService = new AppointmentService();
+	AppointmentServiceImpl appointmentService = new AppointmentServiceImpl();
 
 	public void bookAppointment(Scanner scanner) throws ParseException {
-		PatientService patientService = new PatientService();
+		PatientServiceImpl patientService = new PatientServiceImpl();
 
 		int patientIdTryCount = 0;
 		int physicianNameTryCount = 0;
@@ -52,7 +52,7 @@ public class AppointmentHelper {
 		exitIfTryCountExceed(patientIdTryCount, physicianNameTryCount);
 	}
 
-	private Optional<Patient> getPatientDetail(Scanner scanner, PatientService patientService) {
+	private Optional<Patient> getPatientDetail(Scanner scanner, PatientServiceImpl patientService) {
 		int patientIdInt;
 		System.out.println("Enter Patient ID :\n");
 		String patientId = scanner.next();
@@ -222,7 +222,7 @@ public class AppointmentHelper {
 		int physicianNameTryCount = 0;
 		String resultMessage = "";
 		boolean rescheduleFlag = false;
-		PatientService patientService = new PatientService();
+		PatientServiceImpl patientService = new PatientServiceImpl();
 
 		do {
 			try {

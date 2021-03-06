@@ -12,12 +12,12 @@ import com.ravi.patient.app.enums.AffectedOrgan;
 import com.ravi.patient.app.enums.Gender;
 import com.ravi.patient.app.model.Patient;
 import com.ravi.patient.app.model.PatientMedicalHistory;
-import com.ravi.patient.app.service.PatientService;
+import com.ravi.patient.app.service.impl.PatientServiceImpl;
 import com.ravi.patient.app.validation.Validations;
 
 public class PatientHelper {
 	private static Logger logger = Logger.getLogger(DBconfiguration.class);
-	PatientService patientService = new PatientService();
+	PatientServiceImpl patientService = new PatientServiceImpl();
 
 	public void addPatient(Scanner scanner) throws ParseException {
 		

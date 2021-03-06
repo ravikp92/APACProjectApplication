@@ -1,52 +1,21 @@
-/**
- * 
- */
 package com.ravi.patient.app.service;
 
 import java.util.Optional;
 
-import com.ravi.patient.app.dao.PatientDAO;
 import com.ravi.patient.app.model.Patient;
 import com.ravi.patient.app.model.PatientMedicalHistory;
 
-/**
- * @author RaviP
- *
- */
-public class PatientService {
+public interface PatientService {
 
-	PatientDAO patientDAO = new PatientDAO();
+	 String addPatient(Patient patient, PatientMedicalHistory patientMedicalHistory);
 
-	public String addPatient(Patient patient, PatientMedicalHistory patientMedicalHistory) {
-		return patientDAO.createPatient(patient, patientMedicalHistory);
-	}
+	 int updatePatient(Patient patient);
 
-	public int updatePatient(Patient patient) {
-		return patientDAO.updatePatient(patient);
+	 int updatePatientMedicalHistory(PatientMedicalHistory patientMedicalHistory);
 
-	}
+	 Optional<Patient> searchPatientById(int id);
 
-	public int updatePatientMedicalHistory(PatientMedicalHistory patientMedicalHistory) {
-		return patientDAO.updatePatientMedicalHistory(patientMedicalHistory);
+	 Optional<PatientMedicalHistory> searchPatientHistoryByPatientId(int id);
 
-	}
-
-	public Optional<Patient> searchPatientById(int id) {
-		return patientDAO.searchPatientById(id);
-	}
-
-	public Optional<PatientMedicalHistory> searchPatientHistoryByPatientId(int id) {
-		return patientDAO.searchPatientMedicalHistoryByPatientId(id);
-	}
-
-	public int deletePatient(int id) {
-		int patientHistoryResult = patientDAO.deletePatientMedicalHistoryByPatientId(id);
-		int patientResult = patientDAO.deletePatientById(id);
-		if (patientResult > 0 && patientHistoryResult > 0) {
-			return patientHistoryResult;
-		} else {
-			return 0;
-		}
-	}
-
+	 int deletePatient(int id);
 }

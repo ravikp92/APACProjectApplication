@@ -6,13 +6,13 @@ import java.util.Scanner;
 import com.ravi.patient.app.model.Appointment;
 import com.ravi.patient.app.model.Patient;
 import com.ravi.patient.app.model.PatientMedicalHistory;
-import com.ravi.patient.app.service.AppointmentService;
-import com.ravi.patient.app.service.PatientService;
+import com.ravi.patient.app.service.impl.AppointmentServiceImpl;
+import com.ravi.patient.app.service.impl.PatientServiceImpl;
 import com.ravi.patient.app.util.PatientReportUtility;
 
 public class ReportHelper {
 	public void patientReports(Scanner scanner) {
-		PatientService patientService = new PatientService();
+		PatientServiceImpl patientService = new PatientServiceImpl();
 
 		int patientIdTryCount = 0;
 
@@ -60,8 +60,8 @@ public class ReportHelper {
 	}
 
 	public void appointmentReports(Scanner scanner) {
-		PatientService patientService = new PatientService();
-		 AppointmentService appointmentService=new AppointmentService();
+		PatientServiceImpl patientService = new PatientServiceImpl();
+		 AppointmentServiceImpl appointmentService=new AppointmentServiceImpl();
 		int patientIdTryCount = 0;
 
 		int patientIdInt = 0;
