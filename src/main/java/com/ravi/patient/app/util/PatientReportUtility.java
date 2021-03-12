@@ -74,7 +74,7 @@ public class PatientReportUtility implements PatientAppConstant {
 		createTableForPatientReport(document, patientObj, patientMedicalHistoryObj);
 	}
 
-	private static void createTableForPatientReport(Document section, Optional<Patient> patientObj,
+	private static void createTableForPatientReport(Document document, Optional<Patient> patientObj,
 			Optional<PatientMedicalHistory> patientMedicalHistoryObj) throws DocumentException {
 		// Create two columns
 		PdfPTable table = new PdfPTable(2);
@@ -126,7 +126,7 @@ public class PatientReportUtility implements PatientAppConstant {
 
 		table.addCell("Affected Organ");
 		table.addCell(patientMedicalHistoryObj.get().getAffectedOrgan());
-		section.add(table);
+		document.add(table);
 
 	}
 
